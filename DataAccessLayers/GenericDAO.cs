@@ -7,8 +7,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DataAccessLayers
 {
-	public class GenericDAO<T> : IGenericDAO<T> where T : class
-	{
+	//public class GenericDAO<T> : IGenericDAO<T> where T : class
+	//{
 		//private readonly EduBookContext _context;
 
 		//public GenericDAO(EduBookContext context)
@@ -49,6 +49,6 @@ namespace DataAccessLayers
 		//	_context.Set<T>().Remove(entity);
 		//	return _context.SaveChanges() > 0;
 		//}
-	}
+	//}
 
 }
