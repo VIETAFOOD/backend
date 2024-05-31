@@ -7,12 +7,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DataAccessLayers\DataAccessLayers.csproj" />
+    <Compile Remove="Classes\**" />
+    <Compile Remove="Interfaces\**" />
+    <EmbeddedResource Remove="Classes\**" />
+    <EmbeddedResource Remove="Interfaces\**" />
+    <None Remove="Classes\**" />
+    <None Remove="Interfaces\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Interfaces\" />
-    <Folder Include="Classes\" />
+    <ProjectReference Include="..\BusinessObjects\BusinessObjects.csproj" />
   </ItemGroup>
 
 </Project>
