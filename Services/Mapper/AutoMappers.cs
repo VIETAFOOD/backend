@@ -6,7 +6,7 @@ using System.Runtime;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BusinessObjects.Mapper
+namespace Services.Mapper
 {
     public class AutoMapperProfile : Profile
     {

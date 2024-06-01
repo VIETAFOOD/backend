@@ -1,7 +1,6 @@
 ﻿using System.Reflection;
-using AutoMapper;
-using BusinessObjects;
-using BusinessObjects.Mapper;
+using Services;
+using Services.Mapper;
 using Microsoft.OpenApi.Models;
 using Repositories;
 
