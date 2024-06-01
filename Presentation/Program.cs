@@ -1,3 +1,5 @@
+using BusinessObjects.Entities;
+using Microsoft.EntityFrameworkCore;
 using Presentation;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,6 +11,13 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddPackage();
 builder.Services.AddMasterServices();
+
+builder.Services.AddDbContext<VietaFoodDbContext>(options =>
+{
+	var conectionStr = builder.Configuration.GetConnectionString("DefaultConnectionStringDB");
+	options.UseSqlServer(conectionStr, options => options.MigrationsAssembly("Presentation"));
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
