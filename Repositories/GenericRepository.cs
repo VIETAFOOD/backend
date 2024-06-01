@@ -1,4 +1,4 @@
-﻿using BusinessObjects.Entity;
+﻿using BusinessObjects.Entities;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -11,10 +11,10 @@ namespace Repositories
 {
     public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEntity : class
     {
-        internal VietAFoodContext _context;
+        internal VietaFoodDbContext _context;
         internal DbSet<TEntity> _dbSet;
 
-        public GenericRepository(VietAFoodContext context)
+        public GenericRepository(VietaFoodDbContext context)
         {
             _context = context;
             _dbSet = context.Set<TEntity>();

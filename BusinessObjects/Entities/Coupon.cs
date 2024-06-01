@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace BusinessObjects.Entity
+namespace BusinessObjects.Entities
 {
     public partial class Coupon
     {
@@ -10,9 +10,10 @@ namespace BusinessObjects.Entity
             Orders = new HashSet<Order>();
         }
 
-        public int CouponId { get; set; }
+        public string CouponKey { get; set; } = null!;
         public string CouponName { get; set; } = null!;
         public double DiscountPercentage { get; set; }
+        public int NumOfUses { get; set; }
         public DateTime ExpiredDate { get; set; }
         public int CreatedBy { get; set; }
         public DateTime CreatedDate { get; set; }

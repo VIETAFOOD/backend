@@ -2,23 +2,21 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.Extensions.Configuration;
 
-namespace BusinessObjects.Entity
+namespace BusinessObjects.Entities
 {
-    public partial class VietAFoodContext : DbContext
+    public partial class VietaFoodDbContext : DbContext
     {
-        public VietAFoodContext()
+        public VietaFoodDbContext()
         {
         }
 
-        public VietAFoodContext(DbContextOptions<VietAFoodContext> options)
+        public VietaFoodDbContext(DbContextOptions<VietaFoodDbContext> options)
             : base(options)
         {
         }
 
-        public virtual DbSet<Account> Accounts { get; set; } = null!;
-        public virtual DbSet<Category> Categories { get; set; } = null!;
+        public virtual DbSet<Admin> Admins { get; set; } = null!;
         public virtual DbSet<Coupon> Coupons { get; set; } = null!;
         public virtual DbSet<CustomerInformation> CustomerInformations { get; set; } = null!;
         public virtual DbSet<Order> Orders { get; set; } = null!;
@@ -29,80 +27,49 @@ namespace BusinessObjects.Entity
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer(GetConnection());
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+                optionsBuilder.UseSqlServer("Server=(local);Database=VietaFoodDb;Uid=sa;Pwd=12345;");
             }
-        }
-
-        private string GetConnection()
-        {
-            IConfiguration config = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", true, true)
-                .Build();
-            var conStr = config.GetConnectionString("DefaultConnectionStringDB");
-            return conStr;
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Account>(entity =>
+            modelBuilder.Entity<Admin>(entity =>
             {
-                entity.HasKey(e => e.UserId)
-                    .HasName("PK__Account__CB9A1CDF7BDD2D9C");
+                entity.HasKey(e => e.AdminKey)
+                    .HasName("PK__Admin__586B40311A5C3252");
 
-                entity.ToTable("Account");
+                entity.ToTable("Admin");
 
-                entity.Property(e => e.UserId)
-                    .ValueGeneratedNever()
-                    .HasColumnName("userID");
-
-                entity.Property(e => e.Address)
+                entity.Property(e => e.AdminKey)
                     .HasMaxLength(255)
-                    .HasColumnName("address");
+                    .IsUnicode(false)
+                    .HasColumnName("adminKey");
 
                 entity.Property(e => e.Email)
                     .HasMaxLength(255)
                     .HasColumnName("email");
 
-                entity.Property(e => e.FirstName)
+                entity.Property(e => e.FullName)
                     .HasMaxLength(255)
-                    .HasColumnName("firstName");
-
-                entity.Property(e => e.Gender)
-                    .HasMaxLength(10)
-                    .HasColumnName("gender");
-
-                entity.Property(e => e.IsAdmin).HasColumnName("isAdmin");
+                    .HasColumnName("fullName");
 
                 entity.Property(e => e.Password)
                     .HasMaxLength(255)
                     .HasColumnName("password");
-
-                entity.Property(e => e.PhoneNumber)
-                    .HasMaxLength(20)
-                    .HasColumnName("phoneNumber");
-            });
-
-            modelBuilder.Entity<Category>(entity =>
-            {
-                entity.ToTable("Category");
-
-                entity.Property(e => e.CategoryId)
-                    .ValueGeneratedNever()
-                    .HasColumnName("categoryID");
-
-                entity.Property(e => e.CategoryName)
-                    .HasMaxLength(255)
-                    .HasColumnName("categoryName");
             });
 
             modelBuilder.Entity<Coupon>(entity =>
             {
+                entity.HasKey(e => e.CouponKey)
+                    .HasName("PK__Coupon__592794ACEDA56BAF");
+
                 entity.ToTable("Coupon");
 
-                entity.Property(e => e.CouponId)
-                    .ValueGeneratedNever()
-                    .HasColumnName("couponID");
+                entity.Property(e => e.CouponKey)
+                    .HasMaxLength(255)
+                    .IsUnicode(false)
+                    .HasColumnName("couponKey");
 
                 entity.Property(e => e.CouponName)
                     .HasMaxLength(255)
@@ -120,16 +87,22 @@ namespace BusinessObjects.Entity
                     .HasColumnType("datetime")
                     .HasColumnName("expiredDate");
 
+                entity.Property(e => e.NumOfUses).HasColumnName("numOfUses");
+
                 entity.Property(e => e.Status).HasColumnName("status");
             });
 
             modelBuilder.Entity<CustomerInformation>(entity =>
             {
+                entity.HasKey(e => e.CustomerInfoKey)
+                    .HasName("PK__Customer__B949C15F991FDFF5");
+
                 entity.ToTable("CustomerInformation");
 
-                entity.Property(e => e.CustomerInformationId)
-                    .ValueGeneratedNever()
-                    .HasColumnName("customerInformationID");
+                entity.Property(e => e.CustomerInfoKey)
+                    .HasMaxLength(255)
+                    .IsUnicode(false)
+                    .HasColumnName("customerInfoKey");
 
                 entity.Property(e => e.Address)
                     .HasMaxLength(255)
@@ -150,84 +123,99 @@ namespace BusinessObjects.Entity
 
             modelBuilder.Entity<Order>(entity =>
             {
+                entity.HasKey(e => e.OrderKey)
+                    .HasName("PK__Order__594FCFFB4AD24EA0");
+
                 entity.ToTable("Order");
 
-                entity.Property(e => e.OrderId)
-                    .ValueGeneratedNever()
-                    .HasColumnName("orderID");
+                entity.Property(e => e.OrderKey)
+                    .HasMaxLength(255)
+                    .IsUnicode(false)
+                    .HasColumnName("orderKey");
 
-                entity.Property(e => e.CouponId).HasColumnName("couponID");
+                entity.Property(e => e.CouponKey)
+                    .HasMaxLength(255)
+                    .IsUnicode(false)
+                    .HasColumnName("couponKey");
 
                 entity.Property(e => e.CreatedAt)
                     .HasColumnType("datetime")
                     .HasColumnName("createdAt");
 
+                entity.Property(e => e.CustomerInfoKey)
+                    .HasMaxLength(255)
+                    .IsUnicode(false)
+                    .HasColumnName("customerInfoKey");
+
                 entity.Property(e => e.OrderStatus)
                     .HasMaxLength(20)
                     .HasColumnName("orderStatus");
+
+                entity.Property(e => e.Status).HasColumnName("status");
 
                 entity.Property(e => e.TotalPrice)
                     .HasColumnType("decimal(10, 2)")
                     .HasColumnName("totalPrice");
 
-                entity.Property(e => e.UserId).HasColumnName("userID");
-
-                entity.HasOne(d => d.Coupon)
+                entity.HasOne(d => d.CouponKeyNavigation)
                     .WithMany(p => p.Orders)
-                    .HasForeignKey(d => d.CouponId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Order__couponID__3D5E1FD2");
+                    .HasForeignKey(d => d.CouponKey)
+                    .HasConstraintName("FK__Order__couponKey__52593CB8");
 
-                entity.HasOne(d => d.User)
+                entity.HasOne(d => d.CustomerInfoKeyNavigation)
                     .WithMany(p => p.Orders)
-                    .HasForeignKey(d => d.UserId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Order__userID__3C69FB99");
+                    .HasForeignKey(d => d.CustomerInfoKey)
+                    .HasConstraintName("FK__Order__customerI__5165187F");
             });
 
             modelBuilder.Entity<OrderDetail>(entity =>
             {
+                entity.HasKey(e => e.OrderDetailKey)
+                    .HasName("PK__OrderDet__34730B90B50553EB");
+
                 entity.ToTable("OrderDetail");
 
-                entity.Property(e => e.OrderDetailId)
-                    .ValueGeneratedNever()
-                    .HasColumnName("orderDetailID");
+                entity.Property(e => e.OrderDetailKey)
+                    .HasMaxLength(255)
+                    .IsUnicode(false)
+                    .HasColumnName("orderDetailKey");
 
                 entity.Property(e => e.ActualPrice).HasColumnName("actualPrice");
 
-                entity.Property(e => e.CustomerInformationId).HasColumnName("customerInformationID");
+                entity.Property(e => e.OrderKey)
+                    .HasMaxLength(255)
+                    .IsUnicode(false)
+                    .HasColumnName("orderKey");
 
-                entity.Property(e => e.OrderId).HasColumnName("orderID");
+                entity.Property(e => e.ProductKey)
+                    .HasMaxLength(255)
+                    .IsUnicode(false)
+                    .HasColumnName("productKey");
 
-                entity.Property(e => e.ProductId).HasColumnName("productID");
+                entity.Property(e => e.Quantity).HasColumnName("quantity");
 
-                entity.Property(e => e.Status).HasColumnName("status");
-
-                entity.HasOne(d => d.CustomerInformation)
+                entity.HasOne(d => d.OrderKeyNavigation)
                     .WithMany(p => p.OrderDetails)
-                    .HasForeignKey(d => d.CustomerInformationId)
-                    .HasConstraintName("FK__OrderDeta__custo__44FF419A");
+                    .HasForeignKey(d => d.OrderKey)
+                    .HasConstraintName("FK__OrderDeta__order__5629CD9C");
 
-                entity.HasOne(d => d.Order)
+                entity.HasOne(d => d.ProductKeyNavigation)
                     .WithMany(p => p.OrderDetails)
-                    .HasForeignKey(d => d.OrderId)
-                    .HasConstraintName("FK__OrderDeta__order__46E78A0C");
-
-                entity.HasOne(d => d.Product)
-                    .WithMany(p => p.OrderDetails)
-                    .HasForeignKey(d => d.ProductId)
-                    .HasConstraintName("FK__OrderDeta__produ__45F365D3");
+                    .HasForeignKey(d => d.ProductKey)
+                    .HasConstraintName("FK__OrderDeta__produ__5535A963");
             });
 
             modelBuilder.Entity<Product>(entity =>
             {
+                entity.HasKey(e => e.ProductKey)
+                    .HasName("PK__Product__1E79644A5A919CE1");
+
                 entity.ToTable("Product");
 
-                entity.Property(e => e.ProductId)
-                    .ValueGeneratedNever()
-                    .HasColumnName("productID");
-
-                entity.Property(e => e.CategoryId).HasColumnName("categoryID");
+                entity.Property(e => e.ProductKey)
+                    .HasMaxLength(255)
+                    .IsUnicode(false)
+                    .HasColumnName("productKey");
 
                 entity.Property(e => e.CreatedDay)
                     .HasColumnType("datetime")
@@ -256,12 +244,6 @@ namespace BusinessObjects.Entity
                 entity.Property(e => e.Status).HasColumnName("status");
 
                 entity.Property(e => e.Weight).HasColumnName("weight");
-
-                entity.HasOne(d => d.Category)
-                    .WithMany(p => p.Products)
-                    .HasForeignKey(d => d.CategoryId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Product__categor__267ABA7A");
             });
 
             OnModelCreatingPartial(modelBuilder);

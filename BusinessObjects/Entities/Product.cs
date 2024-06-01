@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace BusinessObjects.Entity
+namespace BusinessObjects.Entities
 {
     public partial class Product
     {
@@ -10,8 +10,7 @@ namespace BusinessObjects.Entity
             OrderDetails = new HashSet<OrderDetail>();
         }
 
-        public int ProductId { get; set; }
-        public int CategoryId { get; set; }
+        public string ProductKey { get; set; } = null!;
         public string Name { get; set; } = null!;
         public string Description { get; set; } = null!;
         public string GuildToUsing { get; set; } = null!;
@@ -22,7 +21,6 @@ namespace BusinessObjects.Entity
         public int Quantity { get; set; }
         public byte Status { get; set; }
 
-        public virtual Category Category { get; set; } = null!;
         public virtual ICollection<OrderDetail> OrderDetails { get; set; }
     }
 }
