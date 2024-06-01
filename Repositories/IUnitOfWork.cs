@@ -1,4 +1,4 @@
-﻿using BusinessObjects.Entity;
+﻿using BusinessObjects.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,8 +9,7 @@ namespace Repositories
 {
     public interface IUnitOfWork
     {
-        public IGenericRepository<Account> AccountRepository { get; }
-        public IGenericRepository<Category> CategoryRepository { get; }
+        public IGenericRepository<Admin> AdminRepository { get; }
         public IGenericRepository<Coupon> CouponRepository { get; }
         public IGenericRepository<CustomerInformation> CustomerInformationRepository { get; }
         public IGenericRepository<Order> OrderRepository { get; }
@@ -18,6 +17,5 @@ namespace Repositories
         public IGenericRepository<Product> ProductRepository { get; }
         void SaveChange();
         void SaveChangeAsync();
-
     }
 }

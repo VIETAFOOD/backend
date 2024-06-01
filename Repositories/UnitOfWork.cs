@@ -1,4 +1,4 @@
-﻿using BusinessObjects.Entity;
+﻿using BusinessObjects.Entities;
 using Microsoft.EntityFrameworkCore;
 using Repositories;
 using System;
@@ -11,9 +11,8 @@ namespace Repositories
 {
     public class UnitOfWork : IUnitOfWork
     {
-        private VietAFoodContext _context = new VietAFoodContext();
-        public IGenericRepository<Account> _accountRepository;
-        public IGenericRepository<Category> _categoryRepository;
+        private VietaFoodDbContext _context = new VietaFoodDbContext();
+        public IGenericRepository<Admin> _adminRepository;
         public IGenericRepository<Coupon> _couponRepository;
         public IGenericRepository<CustomerInformation> _customerInformationRepository;
         public IGenericRepository<Order> _orderRepository;
@@ -25,30 +24,19 @@ namespace Repositories
 
         }
 
-        public IGenericRepository<Account> AccountRepository
-        {
+        public IGenericRepository<Admin> AdminRepository
+		{
             get
             {
-                if (_accountRepository == null)
+                if (_adminRepository == null)
                 {
-                    _accountRepository = new GenericRepository<Account>(_context);
+                    _adminRepository = new GenericRepository<Admin>(_context);
                 }
-                return _accountRepository;
+                return _adminRepository;
             }
         }
 
-        public IGenericRepository<Category> CategoryRepository
-        {
-            get
-            {
-                if (_categoryRepository == null)
-                {
-                    _categoryRepository = new GenericRepository<Category>(_context);
-                }
-                return _categoryRepository;
-            }
-        }
-
+       
         public IGenericRepository<Coupon> CouponRepository
         {
             get

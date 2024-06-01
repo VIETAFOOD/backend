@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace BusinessObjects.Entity
+namespace BusinessObjects.Entities
 {
     public partial class Order
     {
@@ -10,15 +10,16 @@ namespace BusinessObjects.Entity
             OrderDetails = new HashSet<OrderDetail>();
         }
 
-        public int OrderId { get; set; }
-        public int UserId { get; set; }
-        public int CouponId { get; set; }
+        public string OrderKey { get; set; } = null!;
+        public string? CustomerInfoKey { get; set; }
+        public string? CouponKey { get; set; }
         public DateTime CreatedAt { get; set; }
         public string OrderStatus { get; set; } = null!;
         public decimal TotalPrice { get; set; }
+        public byte Status { get; set; }
 
-        public virtual Coupon Coupon { get; set; } = null!;
-        public virtual Account User { get; set; } = null!;
+        public virtual Coupon? CouponKeyNavigation { get; set; }
+        public virtual CustomerInformation? CustomerInfoKeyNavigation { get; set; }
         public virtual ICollection<OrderDetail> OrderDetails { get; set; }
     }
 }

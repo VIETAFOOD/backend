@@ -1,5 +1,8 @@
-﻿using AutoMapper;
+﻿using System.Reflection;
+using AutoMapper;
+using BusinessObjects;
 using BusinessObjects.Mapper;
+using Microsoft.OpenApi.Models;
 using Repositories;
 
 namespace Presentation
@@ -16,17 +19,34 @@ namespace Presentation
 		public static void AddPackage(this IServiceCollection services)
 		{
 			//Add other service in nuget package
-			services.AddSwaggerGen();
 			services.AddEndpointsApiExplorer();
-
-			//Mappers
-			var config = new MapperConfiguration(cf =>
+			services.AddCors(options =>
 			{
-				cf.AddProfile(new AutoMapperProfile());
+				options.AddPolicy("AllowReactApp",
+					builder =>
+					{
+						builder.WithOrigins("https://vietafood.shop/") // Update with your React app URL
+							   .AllowAnyHeader()
+							   .AllowAnyMethod()
+							   .AllowCredentials();
+					});
 			});
-			services.AddSingleton<IMapper>(config.CreateMapper());
+			//Mappers
+			//Add other service in nuget package
+			services.AddSwaggerGen(options =>
+			{
+				options.SwaggerDoc("v1", new OpenApiInfo
+				{
+					Version = "v1",
+					Title = "VietaFood API",
+					Description = "An ASP.NET Core Web API for VietaFood System",
+				});
 
-
+				// using System.Reflection;
+				var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+				options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+			});
+			services.AddAutoMapper(typeof(AutoMapperProfile).Assembly);
 		}
 
 		/// <summary>
@@ -37,7 +57,7 @@ namespace Presentation
 		{
 			#region Repositories
 			services.AddScoped<IUnitOfWork, UnitOfWork>();
-            services.AddScoped(typeof(IGenericRepository<>),typeof(IGenericRepository<>));
+            services.AddScoped(typeof(IGenericRepository<>),typeof(GenericRepository<>));
             #endregion
 
             // Add dependency injection for class and interface
