@@ -1,4 +1,4 @@
-﻿version: '3.4'
+﻿version: '3.8'
 
 services:
   presentation:
@@ -12,21 +12,21 @@ services:
       - vietfood_database
     networks:
       - vietafood-network
-
+      
   vietfood_database:
     image: mcr.microsoft.com/mssql/server:2019-latest
     environment:
       - ACCEPT_EULA=Y
-      - SA_PASSWORD=12345
+      - SA_PASSWORD=StrongPassw0rd!  # Replace with actual environment variable name
     ports:
-      - "1433:1433"
+      - "1431:1431"
     volumes:
-      - sql-data:/var/opt/mssql
+      - sqlserver-data:/var/opt/mssql
     networks:
       - vietafood-network
 
 volumes:
-  sql-data:
+  sqlserver-data:
 
 networks:
   vietafood-network:
