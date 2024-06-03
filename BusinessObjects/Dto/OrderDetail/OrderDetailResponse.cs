@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BusinessObjects.Dto.Item
+namespace BusinessObjects.Dto.OrderDetail
 {
-    public class ItemResponse
-    {
-    }
+	public class OrderDetailResponse
+	{
+	}
 }
