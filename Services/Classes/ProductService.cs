@@ -5,8 +5,10 @@ using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using BusinessObjects.Dto.Product;
+using BusinessObjects.Entities;
 using Repositories;
 using Request.Paging;
+using Services.Constant;
 using Services.Extentions.Paginate;
 using Services.Interfaces;
 
@@ -23,37 +25,50 @@ namespace Services.Classes
 			_mapper = mapper;
 		}
 
-		public Task<ProductResponse> Create(CreateProductRequest request)
-		{
-			throw new NotImplementedException();
-		}
-
-		public Task<bool> Delete(int id)
-		{
-			throw new NotImplementedException();
-		}
-
 		public async Task<ProductResponse> GetById(string id)
 		{
-			var result = _unitOfWork.ProductRepository.GetByID(id);
-			if(result == null)
-			{
-				return null;
-			}
-			var response = _mapper.Map<ProductResponse>(result);
-			return response;
+			var product = await _unitOfWork.ProductRepository.GetByIdAsync(id);
+			return product == null ? null : _mapper.Map<ProductResponse>(product);
 		}
 
-		public async Task<PaginatedList<ProductResponse>> GetList(PagingRequest request)
+		public async Task<ProductResponse> CreateProduct(CreateProductRequest request)
 		{
-			var list = _unitOfWork.ProductRepository.GetAll();
-			var listResponse = _mapper.Map<IList<ProductResponse>>(list);
-			return await listResponse.ToPaginateAsync(request);
+			var product = _mapper.Map<Product>(request);
+			product.ProductKey = string.Format("{0}{1}", PrefixKeyConstant.PRODUCT, Guid.NewGuid().ToString().ToUpper());
+			_unitOfWork.ProductRepository.Add(product);
+			await _unitOfWork.CommitAsync();
+			return _mapper.Map<ProductResponse>(product);
 		}
 
-		public Task<ProductResponse> Update(UpdateProductRequest request)
+		public async Task<ProductResponse> UpdateProduct(string id, UpdateProductRequest request)
 		{
-			throw new NotImplementedException();
+			var product = await _unitOfWork.ProductRepository.GetByIdAsync(id);
+			if (product == null) return null;
+
+			_mapper.Map(request, product);
+			_unitOfWork.ProductRepository.Update(product);
+			await _unitOfWork.CommitAsync();
+
+			return _mapper.Map<ProductResponse>(product);
+		}
+
+		public async Task<bool> DeleteProduct(string id)
+		{
+			var product = await _unitOfWork.ProductRepository.GetByIdAsync(id);
+			if (product == null) return false;
+
+			_unitOfWork.ProductRepository.Delete(product);
+			await _unitOfWork.CommitAsync();
+
+			return true;
+		}
+
+		public async Task<PaginatedList<ProductResponse>> GetAllProducts(GetListProductRequest request)
+		{
+			var products = await _unitOfWork.ProductRepository.GetAllAsync();
+			var mapperList = _mapper.Map<IEnumerable<ProductResponse>>(products);
+			return await mapperList.ToPaginateAsync(request);
 		}
 	}
+
 }

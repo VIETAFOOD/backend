@@ -5,6 +5,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
+using BusinessObjects.Dto.OrderDetail;
 using BusinessObjects.Dto.Product;
 using BusinessObjects.Entities;
 
@@ -14,6 +15,8 @@ namespace Services.Mapper
 	{
 		public ProductProfile() {
 			CreateMap<Product, ProductResponse>();
+			CreateMap<CreateProductRequest, Product>();
+			CreateMap<UpdateProductRequest, Product>();
 		}
 	}
 }

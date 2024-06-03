@@ -8,5 +8,10 @@ namespace BusinessObjects.Dto.Coupon
 {
 	public class UpdateCouponRequest
 	{
+		public string CouponName { get; set; }
+		public float DiscountPercentage { get; set; }
+		public int NumOfUses { get; set; }
+		public DateTime ExpiredDate { get; set; }
+		public int Status { get; set; }
 	}
 }

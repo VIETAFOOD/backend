@@ -16,6 +16,7 @@ namespace BusinessObjects.Entities
         public string GuildToUsing { get; set; } = null!;
         public string Weight { get; set; } = null!;
         public string ExpiryDay { get; set; } = null!;
+        public double Price { get; set; }
         public string ImageUrl { get; set; } = null!;
         public int Quantity { get; set; }
         public byte Status { get; set; }

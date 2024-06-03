@@ -13,10 +13,10 @@ namespace Services.Interfaces
 {
 	public interface IProductService
 	{
-		Task<ProductResponse> Create(CreateProductRequest request);
-		Task<ProductResponse> Update(UpdateProductRequest request);
 		Task<ProductResponse> GetById(string id);
-		Task<PaginatedList<ProductResponse>> GetList(PagingRequest request);
-		Task<bool> Delete(int id);
+		Task<ProductResponse> CreateProduct(CreateProductRequest request);
+		Task<ProductResponse> UpdateProduct(string id, UpdateProductRequest request);
+		Task<bool> DeleteProduct(string id);
+		Task<PaginatedList<ProductResponse>> GetAllProducts(GetListProductRequest request);
 	}
 }

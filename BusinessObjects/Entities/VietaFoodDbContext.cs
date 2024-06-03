@@ -46,7 +46,7 @@ namespace BusinessObjects.Entities
             modelBuilder.Entity<Admin>(entity =>
             {
                 entity.HasKey(e => e.AdminKey)
-                    .HasName("PK__Admin__586B40311A5C3252");
+                    .HasName("PK__Admin__586B4031D6DBE445");
 
                 entity.ToTable("Admin");
 
@@ -71,7 +71,7 @@ namespace BusinessObjects.Entities
             modelBuilder.Entity<Coupon>(entity =>
             {
                 entity.HasKey(e => e.CouponKey)
-                    .HasName("PK__Coupon__592794ACEDA56BAF");
+                    .HasName("PK__Coupon__592794AC4F385980");
 
                 entity.ToTable("Coupon");
 
@@ -104,7 +104,7 @@ namespace BusinessObjects.Entities
             modelBuilder.Entity<CustomerInformation>(entity =>
             {
                 entity.HasKey(e => e.CustomerInfoKey)
-                    .HasName("PK__Customer__B949C15F991FDFF5");
+                    .HasName("PK__Customer__B949C15F4A84291B");
 
                 entity.ToTable("CustomerInformation");
 
@@ -133,7 +133,7 @@ namespace BusinessObjects.Entities
             modelBuilder.Entity<Order>(entity =>
             {
                 entity.HasKey(e => e.OrderKey)
-                    .HasName("PK__Order__594FCFFB4AD24EA0");
+                    .HasName("PK__Order__594FCFFBF63B0FBA");
 
                 entity.ToTable("Order");
 
@@ -180,7 +180,7 @@ namespace BusinessObjects.Entities
             modelBuilder.Entity<OrderDetail>(entity =>
             {
                 entity.HasKey(e => e.OrderDetailKey)
-                    .HasName("PK__OrderDet__34730B90B50553EB");
+                    .HasName("PK__OrderDet__34730B9072589CF9");
 
                 entity.ToTable("OrderDetail");
 
@@ -217,7 +217,7 @@ namespace BusinessObjects.Entities
             modelBuilder.Entity<Product>(entity =>
             {
                 entity.HasKey(e => e.ProductKey)
-                    .HasName("PK__Product__1E79644A5A919CE1");
+                    .HasName("PK__Product__1E79644AE3B1B19E");
 
                 entity.ToTable("Product");
 
@@ -245,6 +245,8 @@ namespace BusinessObjects.Entities
                 entity.Property(e => e.Name)
                     .HasMaxLength(255)
                     .HasColumnName("name");
+
+                entity.Property(e => e.Price).HasColumnName("price");
 
                 entity.Property(e => e.Quantity).HasColumnName("quantity");
 

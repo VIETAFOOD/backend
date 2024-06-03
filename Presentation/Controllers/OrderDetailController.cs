@@ -1,6 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using BusinessObjects.Dto.OrderDetail;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Request.Paging;
+using Services.Extentions;
+using Services.Extentions.Paginate;
+using Services.Interfaces;
 
 namespace Presentation.Controllers
 {
@@ -8,112 +12,103 @@ namespace Presentation.Controllers
 	[ApiController]
 	public class OrderDetailController : ControllerBase
 	{
-		//private readonly IOrderDetailService _service;
+		private readonly IOrderDetailService _orderDetailService;
 
-		//public OrderDetailController(IOrderDetailService service)
-		//{
-		//	_service = service;
-		//}
-
-		/// <summary>
-		/// Get list orderDetail (optional: by condition)
-		/// </summary>
-		/// <param name="request"></param>
-		/// <returns></returns>
-		[HttpGet()]
-		public async Task<IActionResult> GetList([FromQuery] PagingRequest request)
+		public OrderDetailController(IOrderDetailService orderDetailService)
 		{
-			//var response = await _service.GetList(request);
-			//if (response == null || response.TotalCount == 0)
-			//{
-			//	return NotFound();
-			//}
-			//return Ok(response);
-			return Ok();
+			_orderDetailService = orderDetailService;
 		}
 
-		/// <summary>
-		/// Get orderDetail by id
-		/// </summary>
-		/// <param name="id"></param>
-		/// <returns></returns>
-		[HttpGet("{id}")]
-		public async Task<IActionResult> GetById(string id)
+		[HttpGet]
+		public async Task<IActionResult> GetList([FromQuery] GetListOrderDetailRequest request)
 		{
-			//var response = await _service.GetById(id);
-			//if (response == null)
-			//{
-			//	return NotFound();
-			//}
-			//return Ok(response);
-			return Ok();
+			try
+			{
+				var orderDetails = await _orderDetailService.GetAllOrderDetails(request);
+				return Ok(new VietaFoodResponse<PaginatedList<OrderDetailResponse>>(true, "Order details retrieved successfully", orderDetails));
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(500, new VietaFoodResponse<IEnumerable<OrderDetailResponse>>(false, "An error occurred. Please try again later.", null));
+			}
 		}
 
-		/// <summary>
-		/// Create a orderDetail
-		/// </summary>
-		/// <param name="request"></param>
-		/// <returns></returns>
-		[HttpPost()]
-		public async Task<IActionResult> Create(/*CreateOrderDetailRequest request*/)
+		[HttpGet("{key}")]
+		public async Task<IActionResult> GetById(string orderDetailKey)
 		{
-			//var response = await _service.Create(request);
-			//if (response == null)
-			//{
-			//	return NotFound();
-			//}
-			//return Ok(response);
-			return Ok();
-
+			try
+			{
+				var orderDetail = await _orderDetailService.GetById(orderDetailKey);
+				if (orderDetail == null)
+				{
+					return NotFound(new VietaFoodResponse<OrderDetailResponse>(false, "Order detail not found", null));
+				}
+				return Ok(new VietaFoodResponse<OrderDetailResponse>(true, "Order detail retrieved successfully", orderDetail));
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(500, new VietaFoodResponse<OrderDetailResponse>(false, "An error occurred. Please try again later.", null));
+			}
 		}
 
-		/// <summary>
-		/// Update a orderDetail
-		/// </summary>
-		/// <param name="id"></param>
-		/// <param name="request"></param>
-		/// <returns></returns>
-		[HttpPut("{id}")]
-		public async Task<IActionResult> UpdateOrderDetail(int id/*, [FromBody] UpdateOrderDetailRequest request*/)
+		[HttpPost]
+		public async Task<IActionResult> Create([FromBody] CreateOrderDetailRequest request)
 		{
-			//if (!ModelState.IsValid)
-			//{
-			//	return BadRequest(ModelState);
-			//}
+			if (!ModelState.IsValid)
+			{
+				return BadRequest(new VietaFoodResponse<OrderDetailResponse>(false, "Invalid data", null));
+			}
 
-			//if (id != request.OrderDetailId)
-			//{
-			//	return BadRequest("OrderDetail ID in the request body does not match the ID in the URL.");
-			//}
-
-			//var response = await _service.Update(request);
-			//if (response == null)
-			//{
-			//	return NotFound();
-			//}
-
-			//return Ok(response);
-
-			return Ok();
-
+			try
+			{
+				var orderDetail = await _orderDetailService.CreateOrderDetail(request);
+				return CreatedAtAction(nameof(GetById), new { orderDetailKey = orderDetail.OrderDetailKey }, new VietaFoodResponse<OrderDetailResponse>(true, "Order detail created successfully", orderDetail));
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(500, new VietaFoodResponse<OrderDetailResponse>(false, "An error occurred. Please try again later.", null));
+			}
 		}
 
-		/// <summary>
-		/// Delete a OrderDetail
-		/// </summary>
-		/// <param name="id"></param>
-		/// <returns></returns>
-		[HttpDelete("{id}")]
-		public async Task<ActionResult<bool>> Delete(int id)
+		[HttpPut("{key}")]
+		public async Task<IActionResult> Update(string orderDetailKey, [FromBody] UpdateOrderDetailRequest request)
 		{
-			//var result = await _service.Delete(id);
+			if (!ModelState.IsValid)
+			{
+				return BadRequest(new VietaFoodResponse<OrderDetailResponse>(false, "Invalid data", null));
+			}
 
-			//if (result)
-			//{
-			//	return Ok(true);
-			//}
-			//return NotFound();
-			return Ok();
+			try
+			{
+				var orderDetail = await _orderDetailService.UpdateOrderDetail(orderDetailKey, request);
+				if (orderDetail == null)
+				{
+					return NotFound(new VietaFoodResponse<OrderDetailResponse>(false, "Order detail not found", null));
+				}
+				return Ok(new VietaFoodResponse<OrderDetailResponse>(true, "Order detail updated successfully", orderDetail));
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(500, new VietaFoodResponse<OrderDetailResponse>(false, "An error occurred. Please try again later.", null));
+			}
+		}
+
+		[HttpDelete("{key}")]
+		public async Task<IActionResult> Delete(string orderDetailKey)
+		{
+			try
+			{
+				var result = await _orderDetailService.DeleteOrderDetail(orderDetailKey);
+				if (!result)
+				{
+					return NotFound(new VietaFoodResponse<bool>(false, "Order detail not found", false));
+				}
+				return Ok(new VietaFoodResponse<bool>(true, "Order detail deleted successfully", true));
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(500, new VietaFoodResponse<bool>(false, "An error occurred. Please try again later.", false));
+			}
 		}
 	}
 }

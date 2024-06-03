@@ -1,6 +1,11 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using BusinessObjects.Dto.Coupon;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Request.Paging;
+using Services.Extentions.Paginate;
+using Services.Extentions;
+using Services.Interfaces;
 
 namespace Presentation.Controllers
 {
@@ -8,112 +13,110 @@ namespace Presentation.Controllers
 	[ApiController]
 	public class CouponController : ControllerBase
 	{
-		//private readonly ICouponService _service;
+		private readonly ICouponService _couponService;
+		private readonly IMapper _mapper;
 
-		//public CouponController(ICouponService service)
-		//{
-		//	_service = service;
-		//}
+		public CouponController(ICouponService couponService, IMapper mapper)
+		{
+			_couponService = couponService;
+			_mapper = mapper;
+		}
 
-		/// <summary>
-		/// Get list coupon (optional: by condition)
-		/// </summary>
-		/// <param name="request"></param>
-		/// <returns></returns>
 		[HttpGet()]
-		public async Task<IActionResult> GetList([FromQuery] PagingRequest request)
+		public async Task<IActionResult> GetList([FromQuery] GetListCouponRequest request)
 		{
-			//var response = await _service.GetList(request);
-			//if (response == null || response.TotalCount == 0)
-			//{
-			//	return NotFound();
-			//}
-			//return Ok(response);
-			return Ok();
+			try
+			{
+				var coupons = await _couponService.GetAllCoupons(request);
+				return Ok(new VietaFoodResponse<PaginatedList<CouponResponse>>(true, "Coupons retrieved successfully", coupons));
+			}
+			catch (Exception ex)
+			{
+				// Log the exception (optional)
+				return StatusCode(500, new VietaFoodResponse<PaginatedList<CouponResponse>>(false, "An error occurred. Please try again later.", null));
+			}
 		}
 
-		/// <summary>
-		/// Get coupon by id
-		/// </summary>
-		/// <param name="id"></param>
-		/// <returns></returns>
-		[HttpGet("{id}")]
-		public async Task<IActionResult> GetById(string id)
+		[HttpGet("{key}")]
+		public async Task<IActionResult> GetById(string couponKey)
 		{
-			//var response = await _service.GetById(id);
-			//if (response == null)
-			//{
-			//	return NotFound();
-			//}
-			//return Ok(response);
-			return Ok();
+			try
+			{
+				var coupon = await _couponService.GetById(couponKey);
+				if (coupon == null)
+				{
+					return NotFound(new VietaFoodResponse<CouponResponse>(false, "Coupon not found", null));
+				}
+				return Ok(new VietaFoodResponse<CouponResponse>(true, "Coupon retrieved successfully", coupon));
+			}
+			catch (Exception ex)
+			{
+				// Log the exception (optional)
+				return StatusCode(500, new VietaFoodResponse<CouponResponse>(false, "An error occurred. Please try again later.", null));
+			}
 		}
 
-		/// <summary>
-		/// Create a coupon
-		/// </summary>
-		/// <param name="request"></param>
-		/// <returns></returns>
-		[HttpPost()]
-		public async Task<IActionResult> Create(/*CreateCouponRequest request*/)
+		[HttpPost]
+		public async Task<IActionResult> Create([FromBody] CreateCouponRequest request)
 		{
-			//var response = await _service.Create(request);
-			//if (response == null)
-			//{
-			//	return NotFound();
-			//}
-			//return Ok(response);
-			return Ok();
+			if (!ModelState.IsValid)
+			{
+				return BadRequest(new VietaFoodResponse<CouponResponse>(false, "Invalid data", null));
+			}
 
+			try
+			{
+				var coupon = await _couponService.CreateCoupon(request);
+				return CreatedAtAction(nameof(GetById), new { couponKey = coupon.CouponKey }, new VietaFoodResponse<CouponResponse>(true, "Coupon created successfully", coupon));
+			}
+			catch (Exception ex)
+			{
+				// Log the exception (optional)
+				return StatusCode(500, new VietaFoodResponse<CouponResponse>(false, "An error occurred. Please try again later.", null));
+			}
 		}
 
-		/// <summary>
-		/// Update a coupon
-		/// </summary>
-		/// <param name="id"></param>
-		/// <param name="request"></param>
-		/// <returns></returns>
-		[HttpPut("{id}")]
-		public async Task<IActionResult> UpdateCoupon(int id/*, [FromBody] UpdateCouponRequest request*/)
+		[HttpPut("{key}")]
+		public async Task<IActionResult> Update(string couponKey, [FromBody] UpdateCouponRequest request)
 		{
-			//if (!ModelState.IsValid)
-			//{
-			//	return BadRequest(ModelState);
-			//}
+			if (!ModelState.IsValid)
+			{
+				return BadRequest(new VietaFoodResponse<CouponResponse>(false, "Invalid data", null));
+			}
 
-			//if (id != request.CouponId)
-			//{
-			//	return BadRequest("Coupon ID in the request body does not match the ID in the URL.");
-			//}
-
-			//var response = await _service.Update(request);
-			//if (response == null)
-			//{
-			//	return NotFound();
-			//}
-
-			//return Ok(response);
-
-			return Ok();
-
+			try
+			{
+				var coupon = await _couponService.UpdateCoupon(couponKey, request);
+				if (coupon == null)
+				{
+					return NotFound(new VietaFoodResponse<CouponResponse>(false, "Coupon not found", null));
+				}
+				return Ok(new VietaFoodResponse<CouponResponse>(true, "Coupon updated successfully", coupon));
+			}
+			catch (Exception ex)
+			{
+				// Log the exception (optional)
+				return StatusCode(500, new VietaFoodResponse<CouponResponse>(false, "An error occurred. Please try again later.", null));
+			}
 		}
 
-		/// <summary>
-		/// Delete a Coupon
-		/// </summary>
-		/// <param name="id"></param>
-		/// <returns></returns>
-		[HttpDelete("{id}")]
-		public async Task<ActionResult<bool>> Delete(int id)
+		[HttpDelete("{key}")]
+		public async Task<IActionResult> Delete(string couponKey)
 		{
-			//var result = await _service.Delete(id);
-
-			//if (result)
-			//{
-			//	return Ok(true);
-			//}
-			//return NotFound();
-			return Ok();
+			try
+			{
+				var result = await _couponService.DeleteCoupon(couponKey);
+				if (!result)
+				{
+					return NotFound(new VietaFoodResponse<bool>(false, "Coupon not found", false));
+				}
+				return Ok(new VietaFoodResponse<bool>(true, "Coupon deleted successfully", true));
+			}
+			catch (Exception ex)
+			{
+				// Log the exception (optional)
+				return StatusCode(500, new VietaFoodResponse<bool>(false, "An error occurred. Please try again later.", false));
+			}
 		}
 	}
 }

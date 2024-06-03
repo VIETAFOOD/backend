@@ -1,119 +1,114 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using BusinessObjects.Dto.CustomerInformation;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Request.Paging;
+using Services.Extentions;
+using Services.Extentions.Paginate;
+using Services.Interfaces;
 
 namespace Presentation.Controllers
 {
-	[Route("api/customer-information")]
+	[Route("api/customer")]
 	[ApiController]
 	public class CustomerInformationController : ControllerBase
 	{
-		//private readonly ICustomerInformationService _service;
+		private readonly ICustomerInformationService _customerInformationService;
 
-		//public CustomerInformationController(ICustomerInformationService service)
-		//{
-		//	_service = service;
-		//}
-
-		/// <summary>
-		/// Get list customerInformation (optional: by condition)
-		/// </summary>
-		/// <param name="request"></param>
-		/// <returns></returns>
-		[HttpGet()]
-		public async Task<IActionResult> GetList([FromQuery] PagingRequest request)
+		public CustomerInformationController(ICustomerInformationService customerInformationService)
 		{
-			//var response = await _service.GetList(request);
-			//if (response == null || response.TotalCount == 0)
-			//{
-			//	return NotFound();
-			//}
-			//return Ok(response);
-			return Ok();
+			_customerInformationService = customerInformationService;
 		}
 
-		/// <summary>
-		/// Get customerInformation by id
-		/// </summary>
-		/// <param name="id"></param>
-		/// <returns></returns>
-		[HttpGet("{id}")]
-		public async Task<IActionResult> GetById(string id)
+		[HttpGet]
+		public async Task<IActionResult> GetList([FromQuery] GetListCustomerInformationRequest request)
 		{
-			//var response = await _service.GetById(id);
-			//if (response == null)
-			//{
-			//	return NotFound();
-			//}
-			//return Ok(response);
-			return Ok();
+			try
+			{
+				var customerInformations = await _customerInformationService.GetAllCustomerInformations(request);
+				return Ok(new VietaFoodResponse<PaginatedList<CustomerInformationResponse>>(true, "Customer informations retrieved successfully", customerInformations));
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(500, new VietaFoodResponse<PaginatedList<CustomerInformationResponse>>(false, "An error occurred. Please try again later.", null));
+			}
 		}
 
-		/// <summary>
-		/// Create a customerInformation
-		/// </summary>
-		/// <param name="request"></param>
-		/// <returns></returns>
-		[HttpPost()]
-		public async Task<IActionResult> Create(/*CreateCustomerInformationRequest request*/)
+		[HttpGet("{key}")]
+		public async Task<IActionResult> GetById(string customerInfoKey)
 		{
-			//var response = await _service.Create(request);
-			//if (response == null)
-			//{
-			//	return NotFound();
-			//}
-			//return Ok(response);
-			return Ok();
-
+			try
+			{
+				var customerInformation = await _customerInformationService.GetById(customerInfoKey);
+				if (customerInformation == null)
+				{
+					return NotFound(new VietaFoodResponse<CustomerInformationResponse>(false, "Customer information not found", null));
+				}
+				return Ok(new VietaFoodResponse<CustomerInformationResponse>(true, "Customer information retrieved successfully", customerInformation));
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(500, new VietaFoodResponse<CustomerInformationResponse>(false, "An error occurred. Please try again later.", null));
+			}
 		}
 
-		/// <summary>
-		/// Update a customerInformation
-		/// </summary>
-		/// <param name="id"></param>
-		/// <param name="request"></param>
-		/// <returns></returns>
-		[HttpPut("{id}")]
-		public async Task<IActionResult> UpdateCustomerInformation(int id/*, [FromBody] UpdateCustomerInformationRequest request*/)
+		[HttpPost]
+		public async Task<IActionResult> Create([FromBody] CreateCustomerInformationRequest request)
 		{
-			//if (!ModelState.IsValid)
-			//{
-			//	return BadRequest(ModelState);
-			//}
+			if (!ModelState.IsValid)
+			{
+				return BadRequest(new VietaFoodResponse<CustomerInformationResponse>(false, "Invalid data", null));
+			}
 
-			//if (id != request.CustomerInformationId)
-			//{
-			//	return BadRequest("CustomerInformation ID in the request body does not match the ID in the URL.");
-			//}
-
-			//var response = await _service.Update(request);
-			//if (response == null)
-			//{
-			//	return NotFound();
-			//}
-
-			//return Ok(response);
-
-			return Ok();
-
+			try
+			{
+				var customerInformation = await _customerInformationService.CreateCustomerInformation(request);
+				return CreatedAtAction(nameof(GetById), new { customerInfoKey = customerInformation.CustomerInfoKey }, new VietaFoodResponse<CustomerInformationResponse>(true, "Customer information created successfully", customerInformation));
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(500, new VietaFoodResponse<CustomerInformationResponse>(false, "An error occurred. Please try again later.", null));
+			}
 		}
 
-		/// <summary>
-		/// Delete a CustomerInformation
-		/// </summary>
-		/// <param name="id"></param>
-		/// <returns></returns>
-		[HttpDelete("{id}")]
-		public async Task<ActionResult<bool>> Delete(int id)
+		[HttpPut("{key}")]
+		public async Task<IActionResult> Update(string customerInfoKey, [FromBody] UpdateCustomerInformationRequest request)
 		{
-			//var result = await _service.Delete(id);
+			if (!ModelState.IsValid)
+			{
+				return BadRequest(new VietaFoodResponse<CustomerInformationResponse>(false, "Invalid data", null));
+			}
 
-			//if (result)
-			//{
-			//	return Ok(true);
-			//}
-			//return NotFound();
-			return Ok();
+			try
+			{
+				var customerInformation = await _customerInformationService.UpdateCustomerInformation(customerInfoKey, request);
+				if (customerInformation == null)
+				{
+					return NotFound(new VietaFoodResponse<CustomerInformationResponse>(false, "Customer information not found", null));
+				}
+				return Ok(new VietaFoodResponse<CustomerInformationResponse>(true, "Customer information updated successfully", customerInformation));
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(500, new VietaFoodResponse<CustomerInformationResponse>(false, "An error occurred. Please try again later.", null));
+			}
+		}
+
+		[HttpDelete("{key}")]
+		public async Task<IActionResult> Delete(string customerInfoKey)
+		{
+			try
+			{
+				var result = await _customerInformationService.DeleteCustomerInformation(customerInfoKey);
+				if (!result)
+				{
+					return NotFound(new VietaFoodResponse<bool>(false, "Customer information not found", false));
+				}
+				return Ok(new VietaFoodResponse<bool>(true, "Customer information deleted successfully", true));
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(500, new VietaFoodResponse<bool>(false, "An error occurred. Please try again later.", false));
+			}
 		}
 	}
 }
