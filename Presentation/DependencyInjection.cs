@@ -62,10 +62,13 @@ namespace Presentation
             #endregion
 
             // Add dependency injection for class and interface
-            //EX:
-            //services.AddScoped<IAccountRepository, AccountRepository>();
+            services.AddScoped<IAdminService, AdminService>();
             services.AddScoped<IProductService, ProductService>();
-        }
-    }
+			services.AddScoped<ICouponService, CouponService>();
+			services.AddScoped<IOrderService, OrderService>();
+			services.AddScoped<IOrderDetailService, OrderDetailService>();
+			services.AddScoped<ICustomerInformationService, CustomerInformationService>();
+		}
+	}
 
 }

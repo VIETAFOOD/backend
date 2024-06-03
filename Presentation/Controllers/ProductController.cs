@@ -1,6 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using BusinessObjects.Dto.Product;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Request.Paging;
+using Services.Classes;
+using Services.Extentions;
+using Services.Extentions.Paginate;
 using Services.Interfaces;
 
 namespace Presentation.Controllers
@@ -9,11 +13,11 @@ namespace Presentation.Controllers
 	[ApiController]
 	public class ProductController : ControllerBase
 	{
-		private readonly IProductService _service;
+		private readonly IProductService _productService;
 
 		public ProductController(IProductService service)
 		{
-			_service = service;
+			_productService = service;
 		}
 
 		/// <summary>
@@ -22,14 +26,18 @@ namespace Presentation.Controllers
 		/// <param name="request"></param>
 		/// <returns></returns>
 		[HttpGet()]
-		public async Task<IActionResult> GetList([FromQuery]PagingRequest request)
+		public async Task<IActionResult> GetList([FromQuery]GetListProductRequest request)
 		{
-			var response = await _service.GetList(request);
-			if (response == null || response.TotalCount == 0)
+			try
 			{
-				return NotFound();
+				var products = await _productService.GetAllProducts(request);
+				return Ok(new VietaFoodResponse<PaginatedList<ProductResponse>>(true, "Products retrieved successfully", products));
 			}
-			return Ok(response);
+			catch (Exception ex)
+			{
+				// Log the exception (optional)
+				return StatusCode(500, new VietaFoodResponse<PaginatedList<ProductResponse>>(false, "An error occurred. Please try again later.", null));
+			}
 		}
 
 		/// <summary>
@@ -40,12 +48,23 @@ namespace Presentation.Controllers
 		[HttpGet("{id}")]
 		public async Task<IActionResult> GetById(string id)
 		{
-			var response = await _service.GetById(id);
-			if (response == null)
+			try
 			{
-				return NotFound();
+				var product = await _productService.GetById(id);
+				if (product == null)
+				{
+					return NotFound(new VietaFoodResponse<ProductResponse>(false, "Product not found", null));
+				}
+				return Ok(new VietaFoodResponse<ProductResponse>(true, "Product retrieved successfully", product));
 			}
-			return Ok(response);
+			catch (Exception ex)
+			{
+				// Log the exception (optional)
+				// _logger.LogError(ex, "An error occurred while fetching the product");
+
+				// Return a generic error response
+				return StatusCode(500, new VietaFoodResponse<ProductResponse>(false, "An error occurred. Please try again later.", null));
+			}
 		}
 
 		/// <summary>
@@ -53,17 +72,24 @@ namespace Presentation.Controllers
 		/// </summary>
 		/// <param name="request"></param>
 		/// <returns></returns>
-		[HttpPost()]
-		public async Task<IActionResult> Create(/*CreateProductRequest request*/)
+		[HttpPost]
+		public async Task<IActionResult> Create([FromBody] CreateProductRequest request)
 		{
-			//var response = await _service.Create(request);
-			//if (response == null)
-			//{
-			//	return NotFound();
-			//}
-			//return Ok(response);
-			return Ok();
+			if (!ModelState.IsValid)
+			{
+				return BadRequest(new VietaFoodResponse<ProductResponse>(false, "Invalid data", null));
+			}
 
+			try
+			{
+				var product = await _productService.CreateProduct(request);
+				return CreatedAtAction(nameof(GetById), new { id = product.ProductKey }, new VietaFoodResponse<ProductResponse>(true, "Product created successfully", product));
+			}
+			catch (Exception ex)
+			{
+				// Log the exception (optional)
+				return StatusCode(500, new VietaFoodResponse<ProductResponse>(false, "An error occurred. Please try again later.", null));
+			}
 		}
 
 		/// <summary>
@@ -73,28 +99,27 @@ namespace Presentation.Controllers
 		/// <param name="request"></param>
 		/// <returns></returns>
 		[HttpPut("{id}")]
-		public async Task<IActionResult> UpdateProduct(int id/*, [FromBody] UpdateProductRequest request*/)
+		public async Task<IActionResult> Update(string id, [FromBody] UpdateProductRequest request)
 		{
-			//if (!ModelState.IsValid)
-			//{
-			//	return BadRequest(ModelState);
-			//}
+			if (!ModelState.IsValid)
+			{
+				return BadRequest(new VietaFoodResponse<ProductResponse>(false, "Invalid data", null));
+			}
 
-			//if (id != request.ProductId)
-			//{
-			//	return BadRequest("Product ID in the request body does not match the ID in the URL.");
-			//}
-
-			//var response = await _service.Update(request);
-			//if (response == null)
-			//{
-			//	return NotFound();
-			//}
-
-			//return Ok(response);
-
-			return Ok();
-
+			try
+			{
+				var product = await _productService.UpdateProduct(id, request);
+				if (product == null)
+				{
+					return NotFound(new VietaFoodResponse<ProductResponse>(false, "Product not found", null));
+				}
+				return Ok(new VietaFoodResponse<ProductResponse>(true, "Product updated successfully", product));
+			}
+			catch (Exception ex)
+			{
+				// Log the exception (optional)
+				return StatusCode(500, new VietaFoodResponse<ProductResponse>(false, "An error occurred. Please try again later.", null));
+			}
 		}
 
 		/// <summary>
@@ -103,16 +128,22 @@ namespace Presentation.Controllers
 		/// <param name="id"></param>
 		/// <returns></returns>
 		[HttpDelete("{id}")]
-		public async Task<ActionResult<bool>> Delete(int id)
+		public async Task<IActionResult> Delete(string id)
 		{
-			//var result = await _service.Delete(id);
-
-			//if (result)
-			//{
-			//	return Ok(true);
-			//}
-			//return NotFound();
-			return Ok();
+			try
+			{
+				var result = await _productService.DeleteProduct(id);
+				if (!result)
+				{
+					return NotFound(new VietaFoodResponse<bool>(false, "Product not found", false));
+				}
+				return Ok(new VietaFoodResponse<bool>(true, "Product deleted successfully", true));
+			}
+			catch (Exception ex)
+			{
+				// Log the exception (optional)
+				return StatusCode(500, new VietaFoodResponse<bool>(false, "An error occurred. Please try again later.", false));
+			}
 		}
 	}
 }

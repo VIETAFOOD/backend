@@ -15,7 +15,7 @@ namespace Repositories
         public IGenericRepository<Order> OrderRepository { get; }
         public IGenericRepository<OrderDetail> OrderDetailRepository { get; }
         public IGenericRepository<Product> ProductRepository { get; }
-        void SaveChange();
-        void SaveChangeAsync();
-    }
+		Task<int> CommitAsync();
+		void Commit();
+	}
 }

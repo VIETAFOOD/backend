@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Repositories
 {
-    public class UnitOfWork : IUnitOfWork
+	public class UnitOfWork : IUnitOfWork
     {
         private VietaFoodDbContext _context = new VietaFoodDbContext();
         public IGenericRepository<Admin> _adminRepository;
@@ -97,14 +97,19 @@ namespace Repositories
             }
         }
 
-        public void SaveChange()
-        {
-            _context.SaveChanges();
-        }
+		public async Task<int> CommitAsync()
+		{
+			return await _context.SaveChangesAsync();
+		}
 
-        public async void SaveChangeAsync()
-        {
-            await _context.SaveChangesAsync();
-        }
-    }
+		public void Commit()
+		{
+			_context.SaveChanges();
+		}
+
+		public void Dispose()
+		{
+			_context.Dispose();
+		}
+	}
 }
