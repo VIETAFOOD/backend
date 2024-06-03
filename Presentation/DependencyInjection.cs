@@ -3,6 +3,8 @@ using Services;
 using Services.Mapper;
 using Microsoft.OpenApi.Models;
 using Repositories;
+using Services.Interfaces;
+using Services.Classes;
 
 namespace Presentation
 {
@@ -62,7 +64,7 @@ namespace Presentation
             // Add dependency injection for class and interface
             //EX:
             //services.AddScoped<IAccountRepository, AccountRepository>();
-            //services.AddScoped<IAccountService, AccountService>();
+            services.AddScoped<IProductService, ProductService>();
         }
     }
 

@@ -76,7 +76,12 @@ namespace Repositories
             return query.ToList();
         }
 
-        public async Task<IEnumerable<TEntity>> GetAsync(Expression<Func<TEntity, bool>> filter = null,
+		public List<TEntity> GetAll()
+		{
+			return _context.Set<TEntity>().ToList();
+		}
+
+		public async Task<IEnumerable<TEntity>> GetAsync(Expression<Func<TEntity, bool>> filter = null,
                                                     Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
                                                     string includeProperties = "",
                                                     int? pageIndex = null, int? pageSize = null)

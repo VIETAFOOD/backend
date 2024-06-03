@@ -1,60 +1,61 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Request.Paging;
-using Services.Interfaces;
 
 namespace Presentation.Controllers
 {
-	[Route("api/product")]
+	[Route("api/customer-information")]
 	[ApiController]
-	public class ProductController : ControllerBase
+	public class CustomerInformationController : ControllerBase
 	{
-		private readonly IProductService _service;
+		//private readonly ICustomerInformationService _service;
 
-		public ProductController(IProductService service)
-		{
-			_service = service;
-		}
+		//public CustomerInformationController(ICustomerInformationService service)
+		//{
+		//	_service = service;
+		//}
 
 		/// <summary>
-		/// Get list product (optional: by condition)
+		/// Get list customerInformation (optional: by condition)
 		/// </summary>
 		/// <param name="request"></param>
 		/// <returns></returns>
 		[HttpGet()]
-		public async Task<IActionResult> GetList([FromQuery]PagingRequest request)
+		public async Task<IActionResult> GetList([FromQuery] PagingRequest request)
 		{
-			var response = await _service.GetList(request);
-			if (response == null || response.TotalCount == 0)
-			{
-				return NotFound();
-			}
-			return Ok(response);
+			//var response = await _service.GetList(request);
+			//if (response == null || response.TotalCount == 0)
+			//{
+			//	return NotFound();
+			//}
+			//return Ok(response);
+			return Ok();
 		}
 
 		/// <summary>
-		/// Get product by id
+		/// Get customerInformation by id
 		/// </summary>
 		/// <param name="id"></param>
 		/// <returns></returns>
 		[HttpGet("{id}")]
 		public async Task<IActionResult> GetById(string id)
 		{
-			var response = await _service.GetById(id);
-			if (response == null)
-			{
-				return NotFound();
-			}
-			return Ok(response);
+			//var response = await _service.GetById(id);
+			//if (response == null)
+			//{
+			//	return NotFound();
+			//}
+			//return Ok(response);
+			return Ok();
 		}
 
 		/// <summary>
-		/// Create a product
+		/// Create a customerInformation
 		/// </summary>
 		/// <param name="request"></param>
 		/// <returns></returns>
 		[HttpPost()]
-		public async Task<IActionResult> Create(/*CreateProductRequest request*/)
+		public async Task<IActionResult> Create(/*CreateCustomerInformationRequest request*/)
 		{
 			//var response = await _service.Create(request);
 			//if (response == null)
@@ -67,22 +68,22 @@ namespace Presentation.Controllers
 		}
 
 		/// <summary>
-		/// Update a product
+		/// Update a customerInformation
 		/// </summary>
 		/// <param name="id"></param>
 		/// <param name="request"></param>
 		/// <returns></returns>
 		[HttpPut("{id}")]
-		public async Task<IActionResult> UpdateProduct(int id/*, [FromBody] UpdateProductRequest request*/)
+		public async Task<IActionResult> UpdateCustomerInformation(int id/*, [FromBody] UpdateCustomerInformationRequest request*/)
 		{
 			//if (!ModelState.IsValid)
 			//{
 			//	return BadRequest(ModelState);
 			//}
 
-			//if (id != request.ProductId)
+			//if (id != request.CustomerInformationId)
 			//{
-			//	return BadRequest("Product ID in the request body does not match the ID in the URL.");
+			//	return BadRequest("CustomerInformation ID in the request body does not match the ID in the URL.");
 			//}
 
 			//var response = await _service.Update(request);
@@ -98,7 +99,7 @@ namespace Presentation.Controllers
 		}
 
 		/// <summary>
-		/// Delete a Product
+		/// Delete a CustomerInformation
 		/// </summary>
 		/// <param name="id"></param>
 		/// <returns></returns>

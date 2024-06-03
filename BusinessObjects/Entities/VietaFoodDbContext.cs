@@ -24,24 +24,24 @@ namespace BusinessObjects.Entities
         public virtual DbSet<OrderDetail> OrderDetails { get; set; } = null!;
         public virtual DbSet<Product> Products { get; set; } = null!;
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            if (!optionsBuilder.IsConfigured)
-            {
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-                optionsBuilder.UseSqlServer(GetConnection());
-            }
-        }
+		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+		{
+			if (!optionsBuilder.IsConfigured)
+			{
+				optionsBuilder.UseSqlServer(GetConnectionString());
+			}
+		}
+		private string GetConnectionString()
+		{
+			IConfiguration config = new ConfigurationBuilder()
+				.SetBasePath(Directory.GetCurrentDirectory())
+				.AddJsonFile("appsettings.json", true, true)
+				.Build();
+			var strConn = config["ConnectionStrings:DefaultConnectionString"];
+			return strConn;
+		}
 
-        private string GetConnection()
-        {
-            IConfiguration config = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", true, true)
-                .Build();
-            return config.GetConnectionString("DefaultConnectionStringDB");
-        }
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
+		protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Admin>(entity =>
             {
@@ -226,15 +226,13 @@ namespace BusinessObjects.Entities
                     .IsUnicode(false)
                     .HasColumnName("productKey");
 
-                entity.Property(e => e.CreatedDay)
-                    .HasColumnType("datetime")
-                    .HasColumnName("createdDay");
-
                 entity.Property(e => e.Description)
                     .HasMaxLength(255)
                     .HasColumnName("description");
 
-                entity.Property(e => e.ExpiryDay).HasColumnName("expiryDay");
+                entity.Property(e => e.ExpiryDay)
+                    .HasMaxLength(50)
+                    .HasColumnName("expiryDay");
 
                 entity.Property(e => e.GuildToUsing)
                     .HasMaxLength(255)
@@ -252,7 +250,9 @@ namespace BusinessObjects.Entities
 
                 entity.Property(e => e.Status).HasColumnName("status");
 
-                entity.Property(e => e.Weight).HasColumnName("weight");
+                entity.Property(e => e.Weight)
+                    .HasMaxLength(20)
+                    .HasColumnName("weight");
             });
 
             OnModelCreatingPartial(modelBuilder);
