@@ -5,6 +5,9 @@ using Microsoft.OpenApi.Models;
 using Repositories;
 using Services.Interfaces;
 using Services.Classes;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace Presentation
 {
@@ -13,12 +16,19 @@ namespace Presentation
 	/// </summary>
 	public static class DependencyInjection
 	{
-		/// <summary>
-		/// This function to add dependency injection for NuGet Package
-		/// </summary>
-		/// <param name="services"></param>
-		public static void AddPackage(this IServiceCollection services)
+        /// <summary>
+        /// This function to add dependency injection for NuGet Package
+        /// </summary>
+        /// <param name="services"></param>
+        /// 
+
+        public static void AddPackage(this IServiceCollection services)
 		{
+			IConfiguration config = new ConfigurationBuilder()
+				.SetBasePath(Directory.GetCurrentDirectory())
+				.AddJsonFile("appsettings.json", true, true)
+				.Build();
+
 			//Add other service in nuget package
 			services.AddEndpointsApiExplorer();
 			services.AddCors(options =>
@@ -48,7 +58,50 @@ namespace Presentation
 				options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
 			});
 			services.AddAutoMapper(typeof(AutoMapperProfile).Assembly);
-		}
+
+			//Jwt
+			services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidIssuer = config["Jwt:Issuer"],
+                        ValidAudience = config["Jwt:Audience"],
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Jwt:Key"]))
+                    };
+                });
+            services.AddSwaggerGen(c =>
+            {
+                var jwtSecurityScheme = new OpenApiSecurityScheme
+                {
+                    BearerFormat = "JWT",
+                    Name = "Authorization",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = JwtBearerDefaults.AuthenticationScheme,
+                    Description = "Put Bearer + your token in the box below",
+                    Reference = new OpenApiReference
+                    {
+                        Id = JwtBearerDefaults.AuthenticationScheme,
+                        Type = ReferenceType.SecurityScheme
+                    }
+                };
+
+                c.AddSecurityDefinition(jwtSecurityScheme.Reference.Id, jwtSecurityScheme);
+
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        jwtSecurityScheme, Array.Empty<string>()
+                    }
+                });
+				c.EnableAnnotations();
+            });
+
+        }
 
 		/// <summary>
 		/// Create dependencies for service (interface) & service (class) or repository (interface) & repository (class)

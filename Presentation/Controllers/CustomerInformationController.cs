@@ -1,4 +1,5 @@
 ﻿using BusinessObjects.Dto.CustomerInformation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Request.Paging;
@@ -10,7 +11,8 @@ namespace Presentation.Controllers
 {
 	[Route("api/customer")]
 	[ApiController]
-	public class CustomerInformationController : ControllerBase
+    [Authorize]
+    public class CustomerInformationController : ControllerBase
 	{
 		private readonly ICustomerInformationService _customerInformationService;
 
@@ -34,11 +36,11 @@ namespace Presentation.Controllers
 		}
 
 		[HttpGet("{key}")]
-		public async Task<IActionResult> GetById(string customerInfoKey)
+		public async Task<IActionResult> GetById(string key)
 		{
 			try
 			{
-				var customerInformation = await _customerInformationService.GetById(customerInfoKey);
+				var customerInformation = await _customerInformationService.GetById(key);
 				if (customerInformation == null)
 				{
 					return NotFound(new VietaFoodResponse<CustomerInformationResponse>(false, "Customer information not found", null));
@@ -71,7 +73,7 @@ namespace Presentation.Controllers
 		}
 
 		[HttpPut("{key}")]
-		public async Task<IActionResult> Update(string customerInfoKey, [FromBody] UpdateCustomerInformationRequest request)
+		public async Task<IActionResult> Update(string key, [FromBody] UpdateCustomerInformationRequest request)
 		{
 			if (!ModelState.IsValid)
 			{
@@ -80,7 +82,7 @@ namespace Presentation.Controllers
 
 			try
 			{
-				var customerInformation = await _customerInformationService.UpdateCustomerInformation(customerInfoKey, request);
+				var customerInformation = await _customerInformationService.UpdateCustomerInformation(key, request);
 				if (customerInformation == null)
 				{
 					return NotFound(new VietaFoodResponse<CustomerInformationResponse>(false, "Customer information not found", null));
@@ -94,11 +96,11 @@ namespace Presentation.Controllers
 		}
 
 		[HttpDelete("{key}")]
-		public async Task<IActionResult> Delete(string customerInfoKey)
+		public async Task<IActionResult> Delete(string key)
 		{
 			try
 			{
-				var result = await _customerInformationService.DeleteCustomerInformation(customerInfoKey);
+				var result = await _customerInformationService.DeleteCustomerInformation(key);
 				if (!result)
 				{
 					return NotFound(new VietaFoodResponse<bool>(false, "Customer information not found", false));

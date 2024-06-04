@@ -1,4 +1,5 @@
 ﻿using BusinessObjects.Dto.OrderDetail;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Request.Paging;
@@ -10,7 +11,8 @@ namespace Presentation.Controllers
 {
 	[Route("api/order-detail")]
 	[ApiController]
-	public class OrderDetailController : ControllerBase
+    [Authorize]
+    public class OrderDetailController : ControllerBase
 	{
 		private readonly IOrderDetailService _orderDetailService;
 
@@ -34,11 +36,11 @@ namespace Presentation.Controllers
 		}
 
 		[HttpGet("{key}")]
-		public async Task<IActionResult> GetById(string orderDetailKey)
+		public async Task<IActionResult> GetById(string key)
 		{
 			try
 			{
-				var orderDetail = await _orderDetailService.GetById(orderDetailKey);
+				var orderDetail = await _orderDetailService.GetById(key);
 				if (orderDetail == null)
 				{
 					return NotFound(new VietaFoodResponse<OrderDetailResponse>(false, "Order detail not found", null));
@@ -71,7 +73,7 @@ namespace Presentation.Controllers
 		}
 
 		[HttpPut("{key}")]
-		public async Task<IActionResult> Update(string orderDetailKey, [FromBody] UpdateOrderDetailRequest request)
+		public async Task<IActionResult> Update(string key, [FromBody] UpdateOrderDetailRequest request)
 		{
 			if (!ModelState.IsValid)
 			{
@@ -80,7 +82,7 @@ namespace Presentation.Controllers
 
 			try
 			{
-				var orderDetail = await _orderDetailService.UpdateOrderDetail(orderDetailKey, request);
+				var orderDetail = await _orderDetailService.UpdateOrderDetail(key, request);
 				if (orderDetail == null)
 				{
 					return NotFound(new VietaFoodResponse<OrderDetailResponse>(false, "Order detail not found", null));
@@ -94,11 +96,11 @@ namespace Presentation.Controllers
 		}
 
 		[HttpDelete("{key}")]
-		public async Task<IActionResult> Delete(string orderDetailKey)
+		public async Task<IActionResult> Delete(string key)
 		{
 			try
 			{
-				var result = await _orderDetailService.DeleteOrderDetail(orderDetailKey);
+				var result = await _orderDetailService.DeleteOrderDetail(key);
 				if (!result)
 				{
 					return NotFound(new VietaFoodResponse<bool>(false, "Order detail not found", false));

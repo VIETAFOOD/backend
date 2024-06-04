@@ -1,4 +1,5 @@
 ﻿using BusinessObjects.Dto.Order;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Request.Paging;
@@ -10,7 +11,8 @@ namespace Presentation.Controllers
 {
 	[Route("api/order")]
 	[ApiController]
-	public class OrderController : ControllerBase
+    [Authorize]
+    public class OrderController : ControllerBase
 	{
 		private readonly IOrderService _orderService;
 
