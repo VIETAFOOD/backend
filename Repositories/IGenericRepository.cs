@@ -10,7 +10,12 @@ namespace Repositories
 {
     public interface IGenericRepository<TEntity> where TEntity : class
     {
-		Task<TEntity> GetByIdAsync(object id);
+        IEnumerable<TEntity> Get(
+            Expression<Func<TEntity, bool>> filter = null,
+            Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
+            string includeProperties = "");
+
+        Task<TEntity> GetByIdAsync(object id);
 		Task<IEnumerable<TEntity>> GetAllAsync();
 		void Add(TEntity entity);
 		void Update(TEntity entity);

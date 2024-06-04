@@ -1,4 +1,5 @@
 ﻿using BusinessObjects.Dto.Product;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Request.Paging;
@@ -73,7 +74,8 @@ namespace Presentation.Controllers
 		/// <param name="request"></param>
 		/// <returns></returns>
 		[HttpPost]
-		public async Task<IActionResult> Create([FromBody] CreateProductRequest request)
+        [Authorize]
+        public async Task<IActionResult> Create([FromBody] CreateProductRequest request)
 		{
 			if (!ModelState.IsValid)
 			{
@@ -99,7 +101,8 @@ namespace Presentation.Controllers
 		/// <param name="request"></param>
 		/// <returns></returns>
 		[HttpPut("{id}")]
-		public async Task<IActionResult> Update(string id, [FromBody] UpdateProductRequest request)
+        [Authorize]
+        public async Task<IActionResult> Update(string id, [FromBody] UpdateProductRequest request)
 		{
 			if (!ModelState.IsValid)
 			{
@@ -128,7 +131,8 @@ namespace Presentation.Controllers
 		/// <param name="id"></param>
 		/// <returns></returns>
 		[HttpDelete("{id}")]
-		public async Task<IActionResult> Delete(string id)
+        [Authorize]
+        public async Task<IActionResult> Delete(string id)
 		{
 			try
 			{

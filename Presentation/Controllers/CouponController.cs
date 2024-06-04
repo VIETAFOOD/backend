@@ -6,6 +6,7 @@ using Request.Paging;
 using Services.Extentions.Paginate;
 using Services.Extentions;
 using Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Presentation.Controllers
 {
@@ -38,11 +39,11 @@ namespace Presentation.Controllers
 		}
 
 		[HttpGet("{key}")]
-		public async Task<IActionResult> GetById(string couponKey)
+		public async Task<IActionResult> GetById(string key)
 		{
 			try
 			{
-				var coupon = await _couponService.GetById(couponKey);
+				var coupon = await _couponService.GetById(key);
 				if (coupon == null)
 				{
 					return NotFound(new VietaFoodResponse<CouponResponse>(false, "Coupon not found", null));
@@ -57,6 +58,7 @@ namespace Presentation.Controllers
 		}
 
 		[HttpPost]
+		[Authorize]
 		public async Task<IActionResult> Create([FromBody] CreateCouponRequest request)
 		{
 			if (!ModelState.IsValid)
@@ -77,7 +79,8 @@ namespace Presentation.Controllers
 		}
 
 		[HttpPut("{key}")]
-		public async Task<IActionResult> Update(string couponKey, [FromBody] UpdateCouponRequest request)
+        [Authorize]
+        public async Task<IActionResult> Update(string key, [FromBody] UpdateCouponRequest request)
 		{
 			if (!ModelState.IsValid)
 			{
@@ -86,7 +89,7 @@ namespace Presentation.Controllers
 
 			try
 			{
-				var coupon = await _couponService.UpdateCoupon(couponKey, request);
+				var coupon = await _couponService.UpdateCoupon(key, request);
 				if (coupon == null)
 				{
 					return NotFound(new VietaFoodResponse<CouponResponse>(false, "Coupon not found", null));
@@ -101,11 +104,12 @@ namespace Presentation.Controllers
 		}
 
 		[HttpDelete("{key}")]
-		public async Task<IActionResult> Delete(string couponKey)
+        [Authorize]
+        public async Task<IActionResult> Delete(string key)
 		{
 			try
 			{
-				var result = await _couponService.DeleteCoupon(couponKey);
+				var result = await _couponService.DeleteCoupon(key);
 				if (!result)
 				{
 					return NotFound(new VietaFoodResponse<bool>(false, "Coupon not found", false));

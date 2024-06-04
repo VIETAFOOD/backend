@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace BusinessObjects.Dto.Admin
 {
-	public class LoginRequest
-	{
-		public string email {  get; set; }
-		public string password { get; set; }
-	}
+    public class LoginResponse
+    {
+        public string email {  get; set; }
+        public string token { get; set; }
+    }
 }
