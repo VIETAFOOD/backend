@@ -15,7 +15,10 @@ namespace Services.Mapper
         {
 			CreateMap<CreateOrderDetailRequest, OrderDetail>();
 			CreateMap<UpdateOrderDetailRequest, OrderDetail>();
-			CreateMap<OrderDetail, OrderDetailResponse>();
+			CreateMap<OrderDetail, OrderDetailResponse>()
+				.ForMember(dest => dest.Product, opt => opt.MapFrom(src => src.ProductKeyNavigation))
+				.ForMember(dest => dest.CustomerInfo, opt => opt.MapFrom(src => src.OrderKeyNavigation.CustomerInfoKeyNavigation))
+				.ForMember(dest => dest.Order, opt => opt.MapFrom(src => src.OrderKeyNavigation));
 		}
-    }
+	}
 }

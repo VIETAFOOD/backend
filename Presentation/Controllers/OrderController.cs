@@ -1,4 +1,5 @@
 ﻿using BusinessObjects.Dto.Order;
+using BusinessObjects.Dto.Product;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -11,7 +12,6 @@ namespace Presentation.Controllers
 {
 	[Route("api/order")]
 	[ApiController]
-    [Authorize]
     public class OrderController : ControllerBase
 	{
 		private readonly IOrderService _orderService;
@@ -53,6 +53,9 @@ namespace Presentation.Controllers
 			}
 		}
 
+		[ProducesResponseType(typeof(VietaFoodResponse<OrderResponse>), StatusCodes.Status200OK)]
+		[ProducesResponseType(typeof(VietaFoodResponse<>), StatusCodes.Status404NotFound)]
+		[ProducesResponseType(typeof(VietaFoodResponse<>), StatusCodes.Status500InternalServerError)]
 		[HttpPost]
 		public async Task<IActionResult> Create([FromBody] CreateOrderRequest request)
 		{

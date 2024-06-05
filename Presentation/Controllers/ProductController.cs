@@ -26,12 +26,19 @@ namespace Presentation.Controllers
 		/// </summary>
 		/// <param name="request"></param>
 		/// <returns></returns>
+		[ProducesResponseType(typeof(VietaFoodResponse<PaginatedList<ProductResponse>>), StatusCodes.Status200OK)]
+		[ProducesResponseType(typeof(VietaFoodResponse<>), StatusCodes.Status404NotFound)]
+		[ProducesResponseType(typeof(VietaFoodResponse<>), StatusCodes.Status500InternalServerError)]
 		[HttpGet()]
 		public async Task<IActionResult> GetList([FromQuery]GetListProductRequest request)
 		{
 			try
 			{
 				var products = await _productService.GetAllProducts(request);
+				if(products.TotalCount <= 0)
+				{
+					return StatusCode(404, new VietaFoodResponse<PaginatedList<ProductResponse>>(false, "Products not found", null));
+				}
 				return Ok(new VietaFoodResponse<PaginatedList<ProductResponse>>(true, "Products retrieved successfully", products));
 			}
 			catch (Exception ex)
@@ -46,6 +53,9 @@ namespace Presentation.Controllers
 		/// </summary>
 		/// <param name="id"></param>
 		/// <returns></returns>
+		[ProducesResponseType(typeof(VietaFoodResponse<ProductResponse>), StatusCodes.Status200OK)]
+		[ProducesResponseType(typeof(VietaFoodResponse<>), StatusCodes.Status404NotFound)]
+		[ProducesResponseType(typeof(VietaFoodResponse<>), StatusCodes.Status500InternalServerError)]
 		[HttpGet("{id}")]
 		public async Task<IActionResult> GetById(string id)
 		{
@@ -73,6 +83,9 @@ namespace Presentation.Controllers
 		/// </summary>
 		/// <param name="request"></param>
 		/// <returns></returns>
+		[ProducesResponseType(typeof(VietaFoodResponse<ProductResponse>), StatusCodes.Status201Created)]
+		[ProducesResponseType(typeof(VietaFoodResponse<>), StatusCodes.Status500InternalServerError)]
+		[ProducesResponseType(typeof(VietaFoodResponse<>), StatusCodes.Status400BadRequest)]
 		[HttpPost]
         [Authorize]
         public async Task<IActionResult> Create([FromBody] CreateProductRequest request)
@@ -97,12 +110,15 @@ namespace Presentation.Controllers
 		/// <summary>
 		/// Update a product
 		/// </summary>
-		/// <param name="id"></param>
+		/// <param name="key"></param>
 		/// <param name="request"></param>
 		/// <returns></returns>
-		[HttpPut("{id}")]
+		[ProducesResponseType(typeof(VietaFoodResponse<ProductResponse>), StatusCodes.Status200OK)]
+		[ProducesResponseType(typeof(VietaFoodResponse<>), StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(typeof(VietaFoodResponse<>), StatusCodes.Status404NotFound)]
+		[HttpPut("{key}")]
         [Authorize]
-        public async Task<IActionResult> Update(string id, [FromBody] UpdateProductRequest request)
+        public async Task<IActionResult> Update(string key, [FromBody] UpdateProductRequest request)
 		{
 			if (!ModelState.IsValid)
 			{
@@ -111,7 +127,7 @@ namespace Presentation.Controllers
 
 			try
 			{
-				var product = await _productService.UpdateProduct(id, request);
+				var product = await _productService.UpdateProduct(key, request);
 				if (product == null)
 				{
 					return NotFound(new VietaFoodResponse<ProductResponse>(false, "Product not found", null));
@@ -128,15 +144,18 @@ namespace Presentation.Controllers
 		/// <summary>
 		/// Delete a Product
 		/// </summary>
-		/// <param name="id"></param>
+		/// <param name="key"></param>
 		/// <returns></returns>
-		[HttpDelete("{id}")]
+		[ProducesResponseType(typeof(VietaFoodResponse<bool>), StatusCodes.Status200OK)]
+		[ProducesResponseType(typeof(VietaFoodResponse<>), StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(typeof(VietaFoodResponse<>), StatusCodes.Status404NotFound)]
+		[HttpDelete("{key}")]
         [Authorize]
-        public async Task<IActionResult> Delete(string id)
+        public async Task<IActionResult> Delete(string key)
 		{
 			try
 			{
-				var result = await _productService.DeleteProduct(id);
+				var result = await _productService.DeleteProduct(key);
 				if (!result)
 				{
 					return NotFound(new VietaFoodResponse<bool>(false, "Product not found", false));

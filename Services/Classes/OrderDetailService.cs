@@ -26,7 +26,7 @@ namespace Services.Classes
 
 		public async Task<OrderDetailResponse> GetById(string id)
 		{
-			var orderDetail = await _unitOfWork.OrderDetailRepository.GetByIdAsync(id);
+			var orderDetail = await _unitOfWork.OrderDetailRepository.GetByIdAsync(id, keyColumn: "orderDetailKey");
 			return orderDetail == null ? null : _mapper.Map<OrderDetailResponse>(orderDetail);
 		}
 
@@ -41,7 +41,7 @@ namespace Services.Classes
 
 		public async Task<OrderDetailResponse> UpdateOrderDetail(string id, UpdateOrderDetailRequest request)
 		{
-			var orderDetail = await _unitOfWork.OrderDetailRepository.GetByIdAsync(id);
+			var orderDetail = await _unitOfWork.OrderDetailRepository.GetByIdAsync(id, keyColumn: "orderDetailKey");
 			if (orderDetail == null) return null;
 
 			_mapper.Map(request, orderDetail);
@@ -53,7 +53,7 @@ namespace Services.Classes
 
 		public async Task<bool> DeleteOrderDetail(string id)
 		{
-			var orderDetail = await _unitOfWork.OrderDetailRepository.GetByIdAsync(id);
+			var orderDetail = await _unitOfWork.OrderDetailRepository.GetByIdAsync(id, keyColumn: "orderDetailKey");
 			if (orderDetail == null) return false;
 
 			_unitOfWork.OrderDetailRepository.Delete(orderDetail);

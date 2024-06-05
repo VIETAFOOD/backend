@@ -27,7 +27,7 @@ namespace Services.Classes
 
 		public async Task<CouponResponse> GetById(string couponKey)
 		{
-			var coupon = await _unitOfWork.CouponRepository.GetByIdAsync(couponKey);
+			var coupon = await _unitOfWork.CouponRepository.GetByIdAsync(couponKey, keyColumn: "couponKey");
 			return coupon == null ? null : _mapper.Map<CouponResponse>(coupon);
 		}
 
@@ -42,7 +42,7 @@ namespace Services.Classes
 
 		public async Task<CouponResponse> UpdateCoupon(string couponKey, UpdateCouponRequest request)
 		{
-			var existingCoupon = await _unitOfWork.CouponRepository.GetByIdAsync(couponKey);
+			var existingCoupon = await _unitOfWork.CouponRepository.GetByIdAsync(couponKey, keyColumn: "couponKey");
 			if (existingCoupon == null)
 			{
 				return null;
@@ -57,7 +57,7 @@ namespace Services.Classes
 
 		public async Task<bool> DeleteCoupon(string couponKey)
 		{
-			var existingCoupon = await _unitOfWork.CouponRepository.GetByIdAsync(couponKey);
+			var existingCoupon = await _unitOfWork.CouponRepository.GetByIdAsync(couponKey, keyColumn: "couponKey");
 			if (existingCoupon == null)
 			{
 				return false;

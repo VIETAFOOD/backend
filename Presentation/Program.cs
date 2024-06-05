@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using BusinessObjects.Entities;
 using Microsoft.EntityFrameworkCore;
 using Presentation;

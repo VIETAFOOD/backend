@@ -1,4 +1,6 @@
 ﻿using BusinessObjects.Entities;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,5 +19,6 @@ namespace Repositories
         public IGenericRepository<Product> ProductRepository { get; }
 		Task<int> CommitAsync();
 		void Commit();
+        Task<IDbContextTransaction> BeginTransactionAsync();
 	}
 }
