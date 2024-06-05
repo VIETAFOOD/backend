@@ -3,17 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BusinessObjects.Dto.CustomerInformation;
+using BusinessObjects.Dto.OrderDetail;
 
 namespace BusinessObjects.Dto.Order
 {
 	public class CreateOrderRequest
 	{
-		public string CustomerInfoKey { get; set; }
+		public CreateCustomerInformationRequest CustomerInfo { get; set; }
+		public List<CreateOrderDetailRequest> Items { get; set; }
 		public string CouponKey { get; set; }
-		public DateTime CreatedAt { get; set; }
-		public string OrderStatus { get; set; }
 		public decimal TotalPrice { get; set; }
-		public byte Status { get; set; }
 	}
 
 }

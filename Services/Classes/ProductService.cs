@@ -27,7 +27,7 @@ namespace Services.Classes
 
 		public async Task<ProductResponse> GetById(string id)
 		{
-			var product = await _unitOfWork.ProductRepository.GetByIdAsync(id);
+			var product = await _unitOfWork.ProductRepository.GetByIdAsync(id, keyColumn: "productKey");
 			return product == null ? null : _mapper.Map<ProductResponse>(product);
 		}
 
@@ -42,7 +42,7 @@ namespace Services.Classes
 
 		public async Task<ProductResponse> UpdateProduct(string id, UpdateProductRequest request)
 		{
-			var product = await _unitOfWork.ProductRepository.GetByIdAsync(id);
+			var product = await _unitOfWork.ProductRepository.GetByIdAsync(id, keyColumn: "productKey");
 			if (product == null) return null;
 
 			_mapper.Map(request, product);
@@ -54,7 +54,7 @@ namespace Services.Classes
 
 		public async Task<bool> DeleteProduct(string id)
 		{
-			var product = await _unitOfWork.ProductRepository.GetByIdAsync(id);
+			var product = await _unitOfWork.ProductRepository.GetByIdAsync(id, keyColumn: "productKey");
 			if (product == null) return false;
 
 			_unitOfWork.ProductRepository.Delete(product);

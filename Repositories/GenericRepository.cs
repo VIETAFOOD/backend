@@ -6,6 +6,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Repositories
 {
@@ -46,14 +47,28 @@ namespace Repositories
             return query.ToList();
         }
 
-        public async Task<TEntity> GetByIdAsync(object id)
+		public async Task<TEntity> GetByIdAsync(object key, string keyColumn, params Expression<Func<TEntity, object>>[] includes)
 		{
-			return await _dbSet.FindAsync(id);
+			IQueryable<TEntity> query = _dbSet;
+
+			foreach (var include in includes)
+			{
+				query = query.Include(include);
+			}
+
+			return await query.SingleOrDefaultAsync(e => EF.Property<object>(e, keyColumn).Equals(key));
 		}
 
-		public async Task<IEnumerable<TEntity>> GetAllAsync()
+		public async Task<IEnumerable<TEntity>> GetAllAsync(params Expression<Func<TEntity, object>>[] includes)
 		{
-			return await _dbSet.ToListAsync();
+			IQueryable<TEntity> query = _dbSet;
+
+			foreach (var include in includes)
+			{
+				query = query.Include(include);
+			}
+
+			return await query.ToListAsync();
 		}
 
 		public void Add(TEntity entity)

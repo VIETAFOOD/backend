@@ -1,5 +1,6 @@
 ﻿using BusinessObjects.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Repositories;
 using System;
 using System.Collections.Generic;
@@ -23,8 +24,12 @@ namespace Repositories
         {
 
         }
+		public async Task<IDbContextTransaction> BeginTransactionAsync()
+		{
+			return await _context.Database.BeginTransactionAsync();
+		}
 
-        public IGenericRepository<Admin> AdminRepository
+		public IGenericRepository<Admin> AdminRepository
 		{
             get
             {

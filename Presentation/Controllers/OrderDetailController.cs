@@ -11,7 +11,6 @@ namespace Presentation.Controllers
 {
 	[Route("api/order-detail")]
 	[ApiController]
-    [Authorize]
     public class OrderDetailController : ControllerBase
 	{
 		private readonly IOrderDetailService _orderDetailService;

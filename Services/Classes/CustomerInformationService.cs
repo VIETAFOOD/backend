@@ -26,7 +26,7 @@ namespace Services.Classes
 
 		public async Task<CustomerInformationResponse> GetById(string id)
 		{
-			var customerInformation = await _unitOfWork.CustomerInformationRepository.GetByIdAsync(id);
+			var customerInformation = await _unitOfWork.CustomerInformationRepository.GetByIdAsync(id, keyColumn: "customerInfoKey");
 			return customerInformation == null ? null : _mapper.Map<CustomerInformationResponse>(customerInformation);
 		}
 
@@ -41,7 +41,7 @@ namespace Services.Classes
 
 		public async Task<CustomerInformationResponse> UpdateCustomerInformation(string id, UpdateCustomerInformationRequest request)
 		{
-			var customerInformation = await _unitOfWork.CustomerInformationRepository.GetByIdAsync(id);
+			var customerInformation = await _unitOfWork.CustomerInformationRepository.GetByIdAsync(id, keyColumn: "customerInfoKey");
 			if (customerInformation == null) return null;
 
 			_mapper.Map(request, customerInformation);
@@ -53,7 +53,7 @@ namespace Services.Classes
 
 		public async Task<bool> DeleteCustomerInformation(string id)
 		{
-			var customerInformation = await _unitOfWork.CustomerInformationRepository.GetByIdAsync(id);
+			var customerInformation = await _unitOfWork.CustomerInformationRepository.GetByIdAsync(id, keyColumn: "customerInfoKey");
 			if (customerInformation == null) return false;
 
 			_unitOfWork.CustomerInformationRepository.Delete(customerInformation);
