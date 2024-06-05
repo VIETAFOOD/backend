@@ -65,10 +65,35 @@ namespace Services.Classes
 
 		public async Task<PaginatedList<ProductResponse>> GetAllProducts(GetListProductRequest request)
 		{
-			var products = await _unitOfWork.ProductRepository.GetAllAsync();
-			var mapperList = _mapper.Map<IEnumerable<ProductResponse>>(products);
-			return await mapperList.ToPaginateAsync(request);
+			// Get the base queryable from the repository
+			var query = await _unitOfWork.ProductRepository.GetAllAsync();
+
+			// Apply filtering
+			if (!string.IsNullOrEmpty(request.Name))
+			{
+				var nameFilter = request.Name.ToLower();
+				query = query.Where(x => x.Name.ToLower().Contains(nameFilter));
+			}
+
+			// Apply sorting
+			if (!string.IsNullOrEmpty(request.SortOption))
+			{
+				switch (request.SortOption.ToLower())
+				{
+					case "name":
+						query = request.isSortDesc ? query.OrderByDescending(x => x.Name) : query.OrderBy(x => x.Name);
+						break;
+					case "price":
+						query = request.isSortDesc ? query.OrderByDescending(x => x.Price) : query.OrderBy(x => x.Price);
+						break;
+				}
+			}
+
+			// Project to the response type and paginate
+			var mappedQuery = query.Select(x => _mapper.Map<ProductResponse>(x));
+			return await mappedQuery.ToPaginateAsync(request);
 		}
+
 	}
 
 }
