@@ -10,5 +10,7 @@ namespace BusinessObjects.Dto.Product
 	public class GetListProductRequest : PagingRequest
 	{
 		public string? Name { get; set; }
+		public string? SortOption { get; set; }
+		public bool isSortDesc { get; set; } = false;
 	}
 }
