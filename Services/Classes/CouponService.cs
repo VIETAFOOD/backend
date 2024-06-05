@@ -71,9 +71,22 @@ namespace Services.Classes
 
 		public async Task<PaginatedList<CouponResponse>> GetAllCoupons(GetListCouponRequest request)
 		{
-			var coupons = await _unitOfWork.CouponRepository.GetAllAsync();
-			var mappedCoupons = _mapper.Map<IEnumerable<CouponResponse>>(coupons);
-			return await mappedCoupons.ToPaginateAsync(request);
+            IEnumerable<Coupon> coupons;
+            if (request.CouponName == null)
+            {
+                coupons = request.DiscountPercentage == null
+                    ? await _unitOfWork.CouponRepository.GetAllAsync()
+                    : _unitOfWork.CouponRepository.Get(filter: x => x.DiscountPercentage == request.DiscountPercentage);
+            }
+            else
+            {
+                coupons = _unitOfWork.CouponRepository.Get(filter: x => x.CouponName.Contains(request.CouponName)
+                                                        && (request.DiscountPercentage == null 
+														|| x.DiscountPercentage == request.DiscountPercentage));
+            }
+
+            var response = _mapper.Map<IEnumerable<CouponResponse>>(coupons);
+			return await response.ToPaginateAsync(request);
 		}
 	}
 }
