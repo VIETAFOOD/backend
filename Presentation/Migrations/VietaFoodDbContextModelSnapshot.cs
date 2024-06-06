@@ -160,12 +160,6 @@ namespace Presentation.Migrations
                         .HasColumnType("varchar(255)")
                         .HasColumnName("customerInfoKey");
 
-                    b.Property<string>("OrderStatus")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)")
-                        .HasColumnName("orderStatus");
-
                     b.Property<byte>("Status")
                         .HasColumnType("tinyint")
                         .HasColumnName("status");

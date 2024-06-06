@@ -21,6 +21,7 @@ namespace Services.Mapper
 			CreateMap<CreateOrderRequest, Order>();
 			CreateMap<UpdateOrderRequest, Order>();
 			CreateMap<Order, OrderResponse>()
+            .ForMember(dest => dest.CouponKey, opt => opt.MapFrom(src => src.CouponKey != null ? src.CouponKey : null))
 			.ForMember(dest => dest.CustomerInfo, opt => opt.MapFrom(src => src.CustomerInfoKeyNavigation))
 			.ForMember(dest => dest.OrderDetails, opt => opt.MapFrom(src => src.OrderDetails))
 			.ForMember(dest => dest.Status, opt => opt.MapFrom(src => Utils.GetDescriptionEnum((OrderStatusEnum)Enum.Parse(typeof(OrderStatusEnum), src.Status.ToString()))));

@@ -14,7 +14,6 @@ namespace BusinessObjects.Entities
         public string? CustomerInfoKey { get; set; }
         public string? CouponKey { get; set; }
         public DateTime CreatedAt { get; set; }
-        public string OrderStatus { get; set; } = null!;
         public decimal TotalPrice { get; set; }
         public byte Status { get; set; }
 
