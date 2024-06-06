@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Presentation.Migrations
 {
-    public partial class tiensql : Migration
+    public partial class dev_be : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -84,7 +84,6 @@ namespace Presentation.Migrations
                     customerInfoKey = table.Column<string>(type: "varchar(255)", unicode: false, maxLength: 255, nullable: true),
                     couponKey = table.Column<string>(type: "varchar(255)", unicode: false, maxLength: 255, nullable: true),
                     createdAt = table.Column<DateTime>(type: "datetime", nullable: false),
-                    orderStatus = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     totalPrice = table.Column<decimal>(type: "decimal(10,2)", nullable: false),
                     status = table.Column<byte>(type: "tinyint", nullable: false)
                 },

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Presentation.Migrations
 {
     [DbContext(typeof(VietaFoodDbContext))]
-    [Migration("20240604154322_tien-sql")]
-    partial class tiensql
+    [Migration("20240606090957_dev_be")]
+    partial class dev_be
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -161,12 +161,6 @@ namespace Presentation.Migrations
                         .IsUnicode(false)
                         .HasColumnType("varchar(255)")
                         .HasColumnName("customerInfoKey");
-
-                    b.Property<string>("OrderStatus")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)")
-                        .HasColumnName("orderStatus");
 
                     b.Property<byte>("Status")
                         .HasColumnType("tinyint")

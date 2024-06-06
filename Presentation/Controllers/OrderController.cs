@@ -1,5 +1,6 @@
 ﻿using BusinessObjects.Dto.Order;
 using BusinessObjects.Dto.Product;
+using BusinessObjects.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -67,8 +68,12 @@ namespace Presentation.Controllers
 			try
 			{
 				var order = await _orderService.CreateOrder(request);
-				return CreatedAtAction(nameof(GetById), new { orderKey = order.OrderKey }, new VietaFoodResponse<OrderResponse>(true, "Order created successfully", order));
-			}
+				if(order == null)
+				{
+                    return BadRequest(new VietaFoodResponse<OrderResponse>(false, "Bad Request", order));
+                }
+                return Ok(new VietaFoodResponse<OrderResponse>(true, "Order created successfully", order));
+            }
 			catch (Exception ex)
 			{
 				return StatusCode(500, new VietaFoodResponse<OrderResponse>(false, "An error occurred. Please try again later.", null));

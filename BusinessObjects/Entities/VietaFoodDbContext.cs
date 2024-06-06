@@ -156,10 +156,6 @@ namespace BusinessObjects.Entities
                     .IsUnicode(false)
                     .HasColumnName("customerInfoKey");
 
-                entity.Property(e => e.OrderStatus)
-                    .HasMaxLength(20)
-                    .HasColumnName("orderStatus");
-
                 entity.Property(e => e.Status).HasColumnName("status");
 
                 entity.Property(e => e.TotalPrice)

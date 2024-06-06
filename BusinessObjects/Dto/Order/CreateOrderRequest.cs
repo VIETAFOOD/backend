@@ -12,7 +12,7 @@ namespace BusinessObjects.Dto.Order
 	{
 		public CreateCustomerInformationRequest CustomerInfo { get; set; }
 		public List<CreateOrderDetailRequest> Items { get; set; }
-		public string CouponKey { get; set; }
+		public string? CouponKey { get; set; }
 		public decimal TotalPrice { get; set; }
 	}
 
