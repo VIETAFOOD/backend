@@ -21,53 +21,57 @@ namespace Repositories
 			_dbSet = context.Set<TEntity>();
 		}
 
-        public virtual IEnumerable<TEntity> Get(
-            Expression<Func<TEntity, bool>> filter = null,
-            Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
-            string includeProperties = "")
-        {
-            IQueryable<TEntity> query = _dbSet;
-
-            if (filter != null)
-            {
-                query = query.Where(filter);
-            }
-
-            foreach (var includeProperty in includeProperties.Split
-                (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-            {
-                query = query.Include(includeProperty);
-            }
-
-            if (orderBy != null)
-            {
-                query = orderBy(query);
-            }
-
-            return query.ToList();
-        }
-
-		public async Task<TEntity> GetByIdAsync(object key, string keyColumn, params Expression<Func<TEntity, object>>[] includes)
+		public virtual IEnumerable<TEntity> Get(
+			Expression<Func<TEntity, bool>> filter = null,
+			Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
+			string includeProperties = "")
 		{
 			IQueryable<TEntity> query = _dbSet;
 
-			foreach (var include in includes)
+			if (filter != null)
 			{
-				query = query.Include(include);
+				query = query.Where(filter);
 			}
 
+			foreach (var includeProperty in includeProperties.Split
+				(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+			{
+				query = query.Include(includeProperty);
+			}
+
+			if (orderBy != null)
+			{
+				query = orderBy(query);
+			}
+
+			return query.ToList();
+		}
+
+		public async Task<TEntity> GetByIdAsync(object key, string keyColumn, string includeProperties = "")
+		{
+			IQueryable<TEntity> query = _dbSet;
+
+			// Phân tích chuỗi includeProperties và thêm các navigation properties vào câu truy vấn
+			foreach (var includeProperty in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+			{
+				query = query.Include(includeProperty);
+			}
+
+			// Sử dụng keyColumn và key để tìm kiếm đối tượng
 			return await query.SingleOrDefaultAsync(e => EF.Property<object>(e, keyColumn).Equals(key));
 		}
 
-		public async Task<IEnumerable<TEntity>> GetAllAsync(params Expression<Func<TEntity, object>>[] includes)
+		public async Task<IEnumerable<TEntity>> GetAllAsync(string includeProperties = "")
 		{
 			IQueryable<TEntity> query = _dbSet;
 
-			foreach (var include in includes)
+			// Phân tích chuỗi includeProperties và thêm các navigation properties vào câu truy vấn
+			foreach (var includeProperty in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
 			{
-				query = query.Include(include);
+				query = query.Include(includeProperty);
 			}
 
+			// Trả về danh sách đối tượng đã được include navigation properties
 			return await query.ToListAsync();
 		}
 

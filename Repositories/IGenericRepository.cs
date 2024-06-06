@@ -15,8 +15,8 @@ namespace Repositories
             Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
             string includeProperties = "");
 
-        Task<TEntity> GetByIdAsync(object key, string keyColumn, params Expression<Func<TEntity, object>>[] includes);
-		Task<IEnumerable<TEntity>> GetAllAsync(params Expression<Func<TEntity, object>>[] includes);
+        Task<TEntity> GetByIdAsync(object key, string keyColumn, string includeProperties = "");
+		Task<IEnumerable<TEntity>> GetAllAsync(string includeProperties = "");
 		void Add(TEntity entity);
 		void Update(TEntity entity);
 		void Delete(TEntity entity);

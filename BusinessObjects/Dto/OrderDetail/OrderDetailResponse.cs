@@ -13,8 +13,6 @@ namespace BusinessObjects.Dto.OrderDetail
 	{
 		public string OrderDetailKey { get; set; }
 		public ProductResponse Product { get; set; }
-		public CustomerInformationResponse CustomerInfo { get; set; }
-		public OrderResponse Order {  get; set; }
 		public int Quantity { get; set; }
 		public float ActualPrice { get; set; }
 	}
