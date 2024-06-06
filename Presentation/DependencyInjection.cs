@@ -37,7 +37,7 @@ namespace Presentation
 					builder =>
 					{
 						builder.AllowAnyOrigin() //using for develop local host of React
-							   //.WithOrigins("https://vietafood.shop") // Update with your React app URL
+							   .WithOrigins("https://vietafood.shop") // Update with your React app URL
 							   .AllowAnyHeader()
 							   .AllowAnyMethod()
 							   .AllowCredentials();
