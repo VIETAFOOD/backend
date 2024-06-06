@@ -36,12 +36,14 @@ namespace Presentation
 				options.AddPolicy("AllowReactApp",
 					builder =>
 					{
-						builder.AllowAnyOrigin() //using for develop local host of React
-							   .WithOrigins("https://vietafood.shop") // Update with your React app URL
-							   .AllowAnyHeader()
-							   .AllowAnyMethod()
-							   .AllowCredentials();
-					});
+						//builder.AllowAnyOrigin() //using for develop local host of React
+						//	   .WithOrigins("https://vietafood.shop") // Update with your React app URL
+						//	   .WithOrigins("https://localhost:5173")
+						//	   .AllowAnyHeader()
+						//	   .AllowAnyMethod()
+						//	   .AllowCredentials();
+                        builder.WithOrigins("*").AllowAnyMethod().AllowAnyHeader();
+                    });
 			});
 			//Mappers
 			//Add other service in nuget package
