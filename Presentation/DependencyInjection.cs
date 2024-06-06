@@ -36,7 +36,8 @@ namespace Presentation
 				options.AddPolicy("AllowReactApp",
 					builder =>
 					{
-						builder.WithOrigins("https://vietafood.shop/") // Update with your React app URL
+						builder.AllowAnyOrigin() //using for develop local host of React
+							   //.WithOrigins("https://vietafood.shop") // Update with your React app URL
 							   .AllowAnyHeader()
 							   .AllowAnyMethod()
 							   .AllowCredentials();

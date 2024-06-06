@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
@@ -8,6 +9,7 @@ using AutoMapper;
 using BusinessObjects.Dto.CustomerInformation;
 using BusinessObjects.Dto.Order;
 using BusinessObjects.Dto.OrderDetail;
+using BusinessObjects.Dto.Product;
 using BusinessObjects.Entities;
 using Repositories;
 using Services.Constant;
@@ -15,6 +17,9 @@ using Services.Enums;
 using Services.Extentions;
 using Services.Extentions.Paginate;
 using Services.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
+
 
 namespace Services.Classes
 {
@@ -31,8 +36,22 @@ namespace Services.Classes
 
 		public async Task<OrderResponse> GetById(string orderKey)
 		{
-			var order = await _unitOfWork.OrderRepository.GetByIdAsync(orderKey, keyColumn: "orderKey", o => o.CustomerInfoKeyNavigation, o => o.OrderDetails);
-			return order == null ? null : _mapper.Map<OrderResponse>(order);
+			var order = await _unitOfWork.OrderRepository.GetByIdAsync(orderKey, keyColumn: nameof(Order.OrderKey),  includeProperties: "CustomerInfoKeyNavigation,OrderDetails,OrderDetails.ProductKeyNavigation");
+			if(order == null)
+			{
+				return null;
+			}
+			var response = _mapper.Map<OrderResponse>(order);
+			response.CustomerInfo = _mapper.Map<CustomerInformationResponse>(order.CustomerInfoKeyNavigation);
+
+			// Map OrderDetails to OrderDetailResponse and include Product information
+			response.OrderDetails = order.OrderDetails.Select(orderDetail =>
+			{
+				var detailResponse = _mapper.Map<OrderDetailResponse>(orderDetail);
+				detailResponse.Product = _mapper.Map<ProductResponse>(orderDetail.ProductKeyNavigation);
+				return detailResponse;
+			}).ToList();
+			return response;
 		}
 
 		public async Task<OrderResponse> CreateOrder(CreateOrderRequest request)
@@ -70,9 +89,17 @@ namespace Services.Classes
 					// Commit transaction if all operations succeed
 					await transaction.CommitAsync();
 
-					var res = await _unitOfWork.OrderRepository.GetByIdAsync(orderKey, keyColumn: "orderKey", o => o.CustomerInfoKeyNavigation, o => o.OrderDetails);
+					var res = await _unitOfWork.OrderRepository.GetByIdAsync(orderKey, keyColumn: "orderKey", includeProperties: "CustomerInfoKeyNavigation,OrderDetails,OrderDetails.ProductKeyNavigation");
 					response = _mapper.Map<OrderResponse>(res);
-					return _mapper.Map<OrderResponse>(order);
+					response.CustomerInfo = _mapper.Map<CustomerInformationResponse>(order.CustomerInfoKeyNavigation);
+
+					// Map OrderDetails to OrderDetailResponse and include Product information
+					response.OrderDetails = order.OrderDetails.Select(orderDetail =>
+					{
+						var detailResponse = _mapper.Map<OrderDetailResponse>(orderDetail);
+						detailResponse.Product = _mapper.Map<ProductResponse>(orderDetail.ProductKeyNavigation);
+						return detailResponse;
+					}).ToList();
 				}
 				catch (Exception)
 				{
@@ -86,7 +113,7 @@ namespace Services.Classes
 
 		public async Task<OrderResponse> UpdateOrder(string orderKey, UpdateOrderRequest request)
 		{
-			var order = await _unitOfWork.OrderRepository.GetByIdAsync(orderKey,keyColumn: "orderKey", o => o.CustomerInfoKeyNavigation, o => o.OrderDetails);
+			var order = await _unitOfWork.OrderRepository.GetByIdAsync(orderKey, keyColumn: "orderKey", includeProperties: "CustomerInfoKeyNavigation,OrderDetails,OrderDetails.ProductKeyNavigation");
 			if (order == null) return null;
 
 			_mapper.Map(request, order);
@@ -109,10 +136,27 @@ namespace Services.Classes
 
 		public async Task<PaginatedList<OrderResponse>> GetAllOrders(GetListOrderRequest request)
 		{
-			var orders = await _unitOfWork.OrderRepository.GetAllAsync(
-				o => o.CustomerInfoKeyNavigation, o => o.OrderDetails);
-			var mapperList = _mapper.Map<IEnumerable<OrderResponse>>(orders);
-			return await mapperList.ToPaginateAsync(request);
+			var orders = await _unitOfWork.OrderRepository.GetAllAsync(includeProperties: "CustomerInfoKeyNavigation,OrderDetails,OrderDetails.ProductKeyNavigation");
+
+			// Map the list of orders to OrderResponse including related entities
+			var orderResponses = orders.Select(order =>
+			{
+				var orderResponse = _mapper.Map<OrderResponse>(order);
+				orderResponse.CustomerInfo = _mapper.Map<CustomerInformationResponse>(order.CustomerInfoKeyNavigation);
+
+				// Map OrderDetails to OrderDetailResponse and include Product information
+				orderResponse.OrderDetails = order.OrderDetails.Select(orderDetail =>
+				{
+					var detailResponse = _mapper.Map<OrderDetailResponse>(orderDetail);
+					detailResponse.Product = _mapper.Map<ProductResponse>(orderDetail.ProductKeyNavigation);
+					return detailResponse;
+				}).ToList();
+
+				return orderResponse;
+			});
+
+			return await orderResponses.ToPaginateAsync(request);
 		}
+
 	}
 }
