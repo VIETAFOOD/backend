@@ -35,12 +35,12 @@ namespace Presentation.Controllers
 			}
 		}
 
-		[HttpGet("{orderKey}")]
-		public async Task<IActionResult> GetById(string orderKey)
+		[HttpGet("{key}")]
+		public async Task<IActionResult> GetById(string key)
 		{
 			try
 			{
-				var order = await _orderService.GetById(orderKey);
+				var order = await _orderService.GetById(key);
 				if (order == null)
 				{
 					return NotFound(new VietaFoodResponse<OrderResponse>(false, "Order not found", null));
@@ -75,8 +75,8 @@ namespace Presentation.Controllers
 			}
 		}
 
-		[HttpPut("{orderKey}")]
-		public async Task<IActionResult> Update(string orderKey, [FromBody] UpdateOrderRequest request)
+		[HttpPut("{key}")]
+		public async Task<IActionResult> Update(string key, [FromBody] UpdateOrderRequest request)
 		{
 			if (!ModelState.IsValid)
 			{
@@ -85,7 +85,7 @@ namespace Presentation.Controllers
 
 			try
 			{
-				var order = await _orderService.UpdateOrder(orderKey, request);
+				var order = await _orderService.UpdateOrder(key, request);
 				if (order == null)
 				{
 					return NotFound(new VietaFoodResponse<OrderResponse>(false, "Order not found", null));
@@ -98,12 +98,12 @@ namespace Presentation.Controllers
 			}
 		}
 
-		[HttpDelete("{orderKey}")]
-		public async Task<IActionResult> Delete(string orderKey)
+		[HttpDelete("{key}")]
+		public async Task<IActionResult> Delete(string key)
 		{
 			try
 			{
-				var result = await _orderService.DeleteOrder(orderKey);
+				var result = await _orderService.DeleteOrder(key);
 				if (!result)
 				{
 					return NotFound(new VietaFoodResponse<bool>(false, "Order not found", false));
