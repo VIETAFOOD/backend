@@ -53,7 +53,8 @@ namespace Presentation.Controllers
 		}
 
 		[HttpPost]
-		public async Task<IActionResult> Create([FromBody] CreateOrderDetailRequest request)
+        [Authorize]
+        public async Task<IActionResult> Create([FromBody] CreateOrderDetailRequest request)
 		{
 			if (!ModelState.IsValid)
 			{
@@ -72,7 +73,8 @@ namespace Presentation.Controllers
 		}
 
 		[HttpPut("{key}")]
-		public async Task<IActionResult> Update(string key, [FromBody] UpdateOrderDetailRequest request)
+        [Authorize]
+        public async Task<IActionResult> Update(string key, [FromBody] UpdateOrderDetailRequest request)
 		{
 			if (!ModelState.IsValid)
 			{
@@ -95,7 +97,8 @@ namespace Presentation.Controllers
 		}
 
 		[HttpDelete("{key}")]
-		public async Task<IActionResult> Delete(string key)
+        [Authorize]
+        public async Task<IActionResult> Delete(string key)
 		{
 			try
 			{

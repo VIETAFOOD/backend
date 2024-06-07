@@ -14,5 +14,10 @@ namespace Services.Constant
 		public static readonly string CUSTOMER_INFO = "CI_";
 		public static readonly string COUPON = "CO_";
 		public static readonly string ADMIN = "A_";
-	}
+
+        #region BOOLEAN
+        public static readonly byte TRUE = 1;
+        public static readonly byte FALSE = 1;
+        #endregion
+    }
 }
