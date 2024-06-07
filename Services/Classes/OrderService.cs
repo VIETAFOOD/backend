@@ -61,16 +61,18 @@ namespace Services.Classes
         public async Task<OrderResponse> CreateOrder(CreateOrderRequest request)
         {
             var response = new OrderResponse();
-            using (var transaction = await _unitOfWork.BeginTransactionAsync())
+            using (TransactionScope transaction = new TransactionScope())
             {
                 try
                 {
                     //First Check Quantity Product
-                    foreach(var product in request.Items)
+                    foreach (var product in request.Items)
                     {
                         var getProduct = _unitOfWork.ProductRepository
                                                         .Get(filter: p => p.ProductKey == product.ProductKey
-                                                            && p.Quantity >= product.Quantity).FirstOrDefault();
+                                                            && p.Quantity >= product.Quantity
+                                                            && p.Status == PrefixKeyConstant.TRUE)
+                                                        .FirstOrDefault();
                         if (getProduct == null)
                         {
                             return null;
@@ -88,14 +90,14 @@ namespace Services.Classes
                     var getCoupon = _unitOfWork.CouponRepository.Get(filter: c => c.CouponKey.Equals(request.CouponKey)).FirstOrDefault();
 
                     _unitOfWork.OrderRepository.Add(order);
-                    await _unitOfWork.CommitAsync();
+                    _unitOfWork.Commit();
 
                     // Map and add Customer Information
                     var cusInfoReq = _mapper.Map<CustomerInformation>(request.CustomerInfo);
                     cusInfoReq.CustomerInfoKey = string.Format("{0}{1}", PrefixKeyConstant.CUSTOMER_INFO,
                                                                 Guid.NewGuid().ToString().ToUpper());
                     _unitOfWork.CustomerInformationRepository.Add(cusInfoReq);
-                    await _unitOfWork.CommitAsync();
+                    _unitOfWork.Commit();
 
                     order.CustomerInfoKey = cusInfoReq.CustomerInfoKey;
 
@@ -104,8 +106,8 @@ namespace Services.Classes
                     decimal getTotalPriceInOrderDetail = 0;
                     foreach (var orderDetail in listOrderDetails)
                     {
-                        var checkQuantity = 
-                        orderDetail.OrderDetailKey = string.Format("{0}{1}", PrefixKeyConstant.ORDER_DETAIL, 
+                        var checkQuantity =
+                        orderDetail.OrderDetailKey = string.Format("{0}{1}", PrefixKeyConstant.ORDER_DETAIL,
                                                                             Guid.NewGuid().ToString().ToUpper());
                         orderDetail.OrderKey = orderKey;
                         orderDetail.ProductKeyNavigation = _unitOfWork.ProductRepository
@@ -115,27 +117,38 @@ namespace Services.Classes
                         orderDetail.ActualPrice = (double)(orderDetail.ProductKeyNavigation.Price * orderDetail.Quantity);
                         getTotalPriceInOrderDetail = (decimal) orderDetail.ActualPrice;
                         //Sub Product when order
-                        orderDetail.ProductKeyNavigation.Quantity -= 1; 
+                        orderDetail.ProductKeyNavigation.Quantity -= 1;
+
+                        if (orderDetail.ProductKeyNavigation.Quantity == 0)
+                        {
+                            orderDetail.ProductKeyNavigation.Status = PrefixKeyConstant.FALSE;
+                        };
 
                         _unitOfWork.OrderDetailRepository.Add(orderDetail);
-                        await _unitOfWork.CommitAsync();
+                        _unitOfWork.Commit();
                     }
                     if (getCoupon != null
                         && getCoupon.ExpiredDate > Utils.GetDateTimeNow()
                         && getCoupon.NumOfUses >= 1)
                     {
                         getCoupon.NumOfUses -= 1;
-                        order.TotalPrice = getTotalPriceInOrderDetail * ((decimal)getCoupon.DiscountPercentage/100);
-                    }else
+
+                        if (getCoupon.NumOfUses == 0)
+                        {
+                            getCoupon.Status = PrefixKeyConstant.FALSE;
+                        }
+
+                        order.TotalPrice = getTotalPriceInOrderDetail * ((decimal)getCoupon.DiscountPercentage / 100);
+                    }
+                    else
                     {
                         order.TotalPrice = getTotalPriceInOrderDetail;
                     }
-                    
-                    // Commit transaction if all operations succeed
-                    await transaction.CommitAsync();
 
-                    
                     var res = _unitOfWork.OrderRepository.Get(filter: x => x.OrderKey == order.OrderKey).FirstOrDefault();
+
+                    // Commit transaction if all operations succeed
+                    transaction.Complete();
                     response = _mapper.Map<OrderResponse>(res);
                     response.CustomerInfo = _mapper.Map<CustomerInformationResponse>(order.CustomerInfoKeyNavigation);
 
@@ -150,7 +163,7 @@ namespace Services.Classes
                 catch (Exception)
                 {
                     // Rollback transaction if any operation fails
-                    await transaction.RollbackAsync();
+                    transaction.Dispose();
                 }
                 return response;
             }
