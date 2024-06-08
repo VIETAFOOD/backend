@@ -36,7 +36,6 @@ namespace Presentation.Controllers
 			}
 		}
 
-		[Authorize]
 		[HttpGet("{key}")]
 		public async Task<IActionResult> GetById(string key)
 		{

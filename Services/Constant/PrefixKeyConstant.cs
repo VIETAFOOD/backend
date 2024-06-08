@@ -17,7 +17,7 @@ namespace Services.Constant
 
         #region BOOLEAN
         public static readonly byte TRUE = 1;
-        public static readonly byte FALSE = 1;
+        public static readonly byte FALSE = 0;
         #endregion
     }
 }

@@ -84,7 +84,7 @@ namespace Services.Classes
                     order.OrderKey = orderKey;
                     order.CreatedAt = Utils.GetDateTimeNow();
                     order.Status = (byte)OrderStatusEnum.Unpaid;
-                 
+
                     _unitOfWork.OrderRepository.Add(order);
                     _unitOfWork.Commit();
 
@@ -111,7 +111,7 @@ namespace Services.Classes
                                                             .FirstOrDefault();
 
                         orderDetail.ActualPrice = (double)(orderDetail.ProductKeyNavigation.Price * orderDetail.Quantity);
-                        getTotalPriceInOrderDetail = (decimal) orderDetail.ActualPrice;
+                        getTotalPriceInOrderDetail += (decimal)orderDetail.ActualPrice;
                         //Sub Product when order
                         orderDetail.ProductKeyNavigation.Quantity -= 1;
 
@@ -127,25 +127,26 @@ namespace Services.Classes
                     if (!string.IsNullOrEmpty(request.CouponCode))
                     {
                         var getCoupon = _unitOfWork.CouponRepository.Get(filter: c => c.CouponCode.Equals(request.CouponCode)).SingleOrDefault();
-						if (getCoupon != null
-						&& getCoupon.ExpiredDate > Utils.GetDateTimeNow()
-						&& getCoupon.NumOfUses >= 1)
-						{
-							getCoupon.NumOfUses -= 1;
+                        if (getCoupon != null
+                        && getCoupon.ExpiredDate > Utils.GetDateTimeNow()
+                        && getCoupon.NumOfUses >= 1)
+                        {
+                            getCoupon.NumOfUses -= 1;
 
-							if (getCoupon.NumOfUses == 0)
-							{
-								getCoupon.Status = PrefixKeyConstant.FALSE;
-							}
+                            if (getCoupon.NumOfUses == 0)
+                            {
+                                getCoupon.Status = PrefixKeyConstant.FALSE;
+                            }
 
-							order.TotalPrice = getTotalPriceInOrderDetail * ((decimal)getCoupon.DiscountPercentage / 100);
-						}
-						else
-						{
-							order.TotalPrice = getTotalPriceInOrderDetail;
-						}
-					}
-
+                            order.TotalPrice = (decimal)((double)getTotalPriceInOrderDetail - 
+                                                            ((double)getTotalPriceInOrderDetail * (double)(getCoupon.DiscountPercentage / 100)));
+                        }
+                        else
+                        {
+                            order.TotalPrice = getTotalPriceInOrderDetail;
+                        }
+                    }
+                    _unitOfWork.Commit();
                     var res = _unitOfWork.OrderRepository.Get(filter: x => x.OrderKey == order.OrderKey).FirstOrDefault();
 
                     // Commit transaction if all operations succeed
@@ -153,14 +154,14 @@ namespace Services.Classes
                     response = _mapper.Map<OrderResponse>(res);
                     response.CustomerInfo = _mapper.Map<CustomerInformationResponse>(order.CustomerInfoKeyNavigation);
 
-					//Map Coupon Info
-					if (order.CouponKey != null)
-					{
-						response.CouponInfo = _mapper.Map<CouponResponse>(order.CouponKeyNavigation);
-					}
+                    //Map Coupon Info
+                    if (order.CouponKey != null)
+                    {
+                        response.CouponInfo = _mapper.Map<CouponResponse>(order.CouponKeyNavigation);
+                    }
 
-					// Map OrderDetails to OrderDetailResponse and include Product information
-					response.OrderDetails = order.OrderDetails.Select(orderDetail =>
+                    // Map OrderDetails to OrderDetailResponse and include Product information
+                    response.OrderDetails = order.OrderDetails.Select(orderDetail =>
                     {
                         var detailResponse = _mapper.Map<OrderDetailResponse>(orderDetail);
                         detailResponse.Product = _mapper.Map<ProductResponse>(orderDetail.ProductKeyNavigation);
@@ -189,21 +190,21 @@ namespace Services.Classes
             _unitOfWork.OrderRepository.Update(order);
             await _unitOfWork.CommitAsync();
             var orderResponse = _mapper.Map<OrderResponse>(order);
-			orderResponse.CustomerInfo = _mapper.Map<CustomerInformationResponse>(order.CustomerInfoKeyNavigation);
+            orderResponse.CustomerInfo = _mapper.Map<CustomerInformationResponse>(order.CustomerInfoKeyNavigation);
 
-			if (order.CouponKey != null)
-			{
-				orderResponse.CouponInfo = _mapper.Map<CouponResponse>(order.CouponKeyNavigation);
-			}
-			// Map OrderDetails to OrderDetailResponse and include Product information
-			orderResponse.OrderDetails = order.OrderDetails.Select(orderDetail =>
-			{
-				var detailResponse = _mapper.Map<OrderDetailResponse>(orderDetail);
-				detailResponse.Product = _mapper.Map<ProductResponse>(orderDetail.ProductKeyNavigation);
-				return detailResponse;
-			}).ToList();
+            if (order.CouponKey != null)
+            {
+                orderResponse.CouponInfo = _mapper.Map<CouponResponse>(order.CouponKeyNavigation);
+            }
+            // Map OrderDetails to OrderDetailResponse and include Product information
+            orderResponse.OrderDetails = order.OrderDetails.Select(orderDetail =>
+            {
+                var detailResponse = _mapper.Map<OrderDetailResponse>(orderDetail);
+                detailResponse.Product = _mapper.Map<ProductResponse>(orderDetail.ProductKeyNavigation);
+                return detailResponse;
+            }).ToList();
 
-			return orderResponse;
+            return orderResponse;
         }
 
         public async Task<bool> DeleteOrder(string orderKey)
@@ -229,13 +230,13 @@ namespace Services.Classes
                 var orderResponse = _mapper.Map<OrderResponse>(order);
                 orderResponse.CustomerInfo = _mapper.Map<CustomerInformationResponse>(order.CustomerInfoKeyNavigation);
 
-                if(order.CouponKey != null)
+                if (order.CouponKey != null)
                 {
-					orderResponse.CouponInfo = _mapper.Map<CouponResponse>(order.CouponKeyNavigation);
-				}
+                    orderResponse.CouponInfo = _mapper.Map<CouponResponse>(order.CouponKeyNavigation);
+                }
 
-				// Map OrderDetails to OrderDetailResponse and include Product information
-				orderResponse.OrderDetails = order.OrderDetails.Select(orderDetail =>
+                // Map OrderDetails to OrderDetailResponse and include Product information
+                orderResponse.OrderDetails = order.OrderDetails.Select(orderDetail =>
                 {
                     var detailResponse = _mapper.Map<OrderDetailResponse>(orderDetail);
                     detailResponse.Product = _mapper.Map<ProductResponse>(orderDetail.ProductKeyNavigation);
