@@ -72,7 +72,7 @@ namespace Services.Classes
 		public async Task<PaginatedList<CouponResponse>> GetAllCoupons(GetListCouponRequest request)
 		{
             IEnumerable<Coupon> coupons;
-            if (request.CouponName == null)
+            if (request.CouponCode == null)
             {
                 coupons = request.DiscountPercentage == null
                     ? await _unitOfWork.CouponRepository.GetAllAsync()
@@ -80,7 +80,7 @@ namespace Services.Classes
             }
             else
             {
-                coupons = _unitOfWork.CouponRepository.Get(filter: x => x.CouponName.Contains(request.CouponName)
+                coupons = _unitOfWork.CouponRepository.Get(filter: x => x.CouponCode.Equals(request.CouponCode)
                                                         && (request.DiscountPercentage == null 
 														|| x.DiscountPercentage == request.DiscountPercentage));
             }

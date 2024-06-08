@@ -8,13 +8,13 @@ namespace BusinessObjects.Dto.Coupon
 {
 	public class CouponResponse
 	{
-		public string CouponKey { get; set; }
-		public string CouponName { get; set; }
-		public float DiscountPercentage { get; set; }
+		public string CouponKey { get; set; } = null!;
+		public string? CouponCode { get; set; }
+		public string Description { get; set; } = null!;
+		public double DiscountPercentage { get; set; }
 		public int NumOfUses { get; set; }
 		public DateTime ExpiredDate { get; set; }
-		public int CreatedBy { get; set; }
+		public string CreatedBy { get; set; } = null!;
 		public DateTime CreatedDate { get; set; }
-		public int Status { get; set; }
 	}
 }

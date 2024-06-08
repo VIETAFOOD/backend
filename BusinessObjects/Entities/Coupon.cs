@@ -11,14 +11,15 @@ namespace BusinessObjects.Entities
         }
 
         public string CouponKey { get; set; } = null!;
-        public string CouponName { get; set; } = null!;
+        public string? CouponCode { get; set; }
+        public string Description { get; set; } = null!;
         public double DiscountPercentage { get; set; }
         public int NumOfUses { get; set; }
         public DateTime ExpiredDate { get; set; }
-        public int CreatedBy { get; set; }
+        public string CreatedBy { get; set; } = null!;
         public DateTime CreatedDate { get; set; }
         public byte Status { get; set; }
-
+        public virtual Admin CreatedByNavigation { get; set; } = null!;
         public virtual ICollection<Order> Orders { get; set; }
     }
 }

@@ -9,7 +9,7 @@ namespace BusinessObjects.Dto.Coupon
 {
 	public class GetListCouponRequest : PagingRequest
 	{
-		public string? CouponName { get; set; }
+		public string? CouponCode { get; set; }
 		public float? DiscountPercentage { get; set; }
 	}
 }

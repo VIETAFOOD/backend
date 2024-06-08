@@ -31,13 +31,14 @@ namespace BusinessObjects.Entities
 				optionsBuilder.UseSqlServer(GetConnectionString());
 			}
 		}
+
 		private string GetConnectionString()
 		{
 			IConfiguration config = new ConfigurationBuilder()
 				.SetBasePath(Directory.GetCurrentDirectory())
 				.AddJsonFile("appsettings.json", true, true)
 				.Build();
-            var strConn = config.GetConnectionString("DefaultConnectionStringDB");
+			var strConn = config["ConnectionStrings:DefaultConnectionString"];
 			return strConn;
 		}
 
@@ -46,7 +47,7 @@ namespace BusinessObjects.Entities
             modelBuilder.Entity<Admin>(entity =>
             {
                 entity.HasKey(e => e.AdminKey)
-                    .HasName("PK__Admin__586B4031D6DBE445");
+                    .HasName("PK__Admin__586B403180F4C4E6");
 
                 entity.ToTable("Admin");
 
@@ -71,24 +72,35 @@ namespace BusinessObjects.Entities
             modelBuilder.Entity<Coupon>(entity =>
             {
                 entity.HasKey(e => e.CouponKey)
-                    .HasName("PK__Coupon__592794AC4F385980");
+                    .HasName("PK__Coupon__592794ACC6677E64");
 
                 entity.ToTable("Coupon");
+
+                entity.HasIndex(e => e.CouponCode, "UQ__Coupon__1D19F4DAC776D64C")
+                    .IsUnique();
 
                 entity.Property(e => e.CouponKey)
                     .HasMaxLength(255)
                     .IsUnicode(false)
                     .HasColumnName("couponKey");
 
-                entity.Property(e => e.CouponName)
+                entity.Property(e => e.CouponCode)
                     .HasMaxLength(255)
-                    .HasColumnName("couponName");
+                    .IsUnicode(false)
+                    .HasColumnName("couponCode");
 
-                entity.Property(e => e.CreatedBy).HasColumnName("createdBy");
+                entity.Property(e => e.CreatedBy)
+                    .HasMaxLength(255)
+                    .IsUnicode(false)
+                    .HasColumnName("createdBy");
 
                 entity.Property(e => e.CreatedDate)
                     .HasColumnType("datetime")
                     .HasColumnName("createdDate");
+
+                entity.Property(e => e.Description)
+                    .HasMaxLength(255)
+                    .HasColumnName("description");
 
                 entity.Property(e => e.DiscountPercentage).HasColumnName("discountPercentage");
 
@@ -99,12 +111,18 @@ namespace BusinessObjects.Entities
                 entity.Property(e => e.NumOfUses).HasColumnName("numOfUses");
 
                 entity.Property(e => e.Status).HasColumnName("status");
+
+                entity.HasOne(d => d.CreatedByNavigation)
+                    .WithMany(p => p.Coupons)
+                    .HasForeignKey(d => d.CreatedBy)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK__Coupon__createdB__4E88ABD4");
             });
 
             modelBuilder.Entity<CustomerInformation>(entity =>
             {
                 entity.HasKey(e => e.CustomerInfoKey)
-                    .HasName("PK__Customer__B949C15F4A84291B");
+                    .HasName("PK__Customer__B949C15F9BB40812");
 
                 entity.ToTable("CustomerInformation");
 
@@ -133,7 +151,7 @@ namespace BusinessObjects.Entities
             modelBuilder.Entity<Order>(entity =>
             {
                 entity.HasKey(e => e.OrderKey)
-                    .HasName("PK__Order__594FCFFBF63B0FBA");
+                    .HasName("PK__Order__594FCFFBF65CBAA5");
 
                 entity.ToTable("Order");
 
@@ -165,18 +183,18 @@ namespace BusinessObjects.Entities
                 entity.HasOne(d => d.CouponKeyNavigation)
                     .WithMany(p => p.Orders)
                     .HasForeignKey(d => d.CouponKey)
-                    .HasConstraintName("FK__Order__couponKey__52593CB8");
+                    .HasConstraintName("FK__Order__couponKey__5441852A");
 
                 entity.HasOne(d => d.CustomerInfoKeyNavigation)
                     .WithMany(p => p.Orders)
                     .HasForeignKey(d => d.CustomerInfoKey)
-                    .HasConstraintName("FK__Order__customerI__5165187F");
+                    .HasConstraintName("FK__Order__customerI__534D60F1");
             });
 
             modelBuilder.Entity<OrderDetail>(entity =>
             {
                 entity.HasKey(e => e.OrderDetailKey)
-                    .HasName("PK__OrderDet__34730B9072589CF9");
+                    .HasName("PK__OrderDet__34730B90DC1B87F3");
 
                 entity.ToTable("OrderDetail");
 
@@ -202,18 +220,18 @@ namespace BusinessObjects.Entities
                 entity.HasOne(d => d.OrderKeyNavigation)
                     .WithMany(p => p.OrderDetails)
                     .HasForeignKey(d => d.OrderKey)
-                    .HasConstraintName("FK__OrderDeta__order__5629CD9C");
+                    .HasConstraintName("FK__OrderDeta__order__5812160E");
 
                 entity.HasOne(d => d.ProductKeyNavigation)
                     .WithMany(p => p.OrderDetails)
                     .HasForeignKey(d => d.ProductKey)
-                    .HasConstraintName("FK__OrderDeta__produ__5535A963");
+                    .HasConstraintName("FK__OrderDeta__produ__571DF1D5");
             });
 
             modelBuilder.Entity<Product>(entity =>
             {
                 entity.HasKey(e => e.ProductKey)
-                    .HasName("PK__Product__1E79644AE3B1B19E");
+                    .HasName("PK__Product__1E79644AF21B6B72");
 
                 entity.ToTable("Product");
 

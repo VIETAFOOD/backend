@@ -21,7 +21,6 @@ namespace Presentation.Controllers
 		{
 			_orderService = orderService;
 		}
-
 		[Authorize]
 		[HttpGet]
 		public async Task<IActionResult> GetList([FromQuery] GetListOrderRequest request)
