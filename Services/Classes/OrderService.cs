@@ -18,9 +18,8 @@ using Services.Extentions;
 using Services.Extentions.Paginate;
 using Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System.Linq.Expressions;
 using Microsoft.Extensions.Logging.Abstractions;
-
+using BusinessObjects.Dto.Coupon;
 
 namespace Services.Classes
 {
@@ -39,7 +38,7 @@ namespace Services.Classes
         {
             var order = await _unitOfWork.OrderRepository
                                             .GetByIdAsync(orderKey, keyColumn: nameof(Order.OrderKey),
-                                            includeProperties: "CustomerInfoKeyNavigation,OrderDetails," +
+                                            includeProperties: "CouponKeyNavigation,CustomerInfoKeyNavigation,OrderDetails," +
                                                                 "OrderDetails.ProductKeyNavigation");
             if (order == null)
             {
@@ -47,7 +46,7 @@ namespace Services.Classes
             }
             var response = _mapper.Map<OrderResponse>(order);
             response.CustomerInfo = _mapper.Map<CustomerInformationResponse>(order.CustomerInfoKeyNavigation);
-
+            response.CouponInfo = _mapper.Map<CouponResponse>(order.CouponKeyNavigation);
             // Map OrderDetails to OrderDetailResponse and include Product information
             response.OrderDetails = order.OrderDetails.Select(orderDetail =>
             {
@@ -85,10 +84,7 @@ namespace Services.Classes
                     order.OrderKey = orderKey;
                     order.CreatedAt = Utils.GetDateTimeNow();
                     order.Status = (byte)OrderStatusEnum.Unpaid;
-                    order.CouponKey = request.CouponKey;
-                    //Check coupon
-                    var getCoupon = _unitOfWork.CouponRepository.Get(filter: c => c.CouponKey.Equals(request.CouponKey)).FirstOrDefault();
-
+                 
                     _unitOfWork.OrderRepository.Add(order);
                     _unitOfWork.Commit();
 
@@ -127,23 +123,28 @@ namespace Services.Classes
                         _unitOfWork.OrderDetailRepository.Add(orderDetail);
                         _unitOfWork.Commit();
                     }
-                    if (getCoupon != null
-                        && getCoupon.ExpiredDate > Utils.GetDateTimeNow()
-                        && getCoupon.NumOfUses >= 1)
-                    {
-                        getCoupon.NumOfUses -= 1;
 
-                        if (getCoupon.NumOfUses == 0)
-                        {
-                            getCoupon.Status = PrefixKeyConstant.FALSE;
-                        }
-
-                        order.TotalPrice = getTotalPriceInOrderDetail * ((decimal)getCoupon.DiscountPercentage / 100);
-                    }
-                    else
+                    if (!string.IsNullOrEmpty(request.CouponCode))
                     {
-                        order.TotalPrice = getTotalPriceInOrderDetail;
-                    }
+                        var getCoupon = _unitOfWork.CouponRepository.Get(filter: c => c.CouponCode.Equals(request.CouponCode)).SingleOrDefault();
+						if (getCoupon != null
+						&& getCoupon.ExpiredDate > Utils.GetDateTimeNow()
+						&& getCoupon.NumOfUses >= 1)
+						{
+							getCoupon.NumOfUses -= 1;
+
+							if (getCoupon.NumOfUses == 0)
+							{
+								getCoupon.Status = PrefixKeyConstant.FALSE;
+							}
+
+							order.TotalPrice = getTotalPriceInOrderDetail * ((decimal)getCoupon.DiscountPercentage / 100);
+						}
+						else
+						{
+							order.TotalPrice = getTotalPriceInOrderDetail;
+						}
+					}
 
                     var res = _unitOfWork.OrderRepository.Get(filter: x => x.OrderKey == order.OrderKey).FirstOrDefault();
 
@@ -152,8 +153,14 @@ namespace Services.Classes
                     response = _mapper.Map<OrderResponse>(res);
                     response.CustomerInfo = _mapper.Map<CustomerInformationResponse>(order.CustomerInfoKeyNavigation);
 
-                    // Map OrderDetails to OrderDetailResponse and include Product information
-                    response.OrderDetails = order.OrderDetails.Select(orderDetail =>
+					//Map Coupon Info
+					if (order.CouponKey != null)
+					{
+						response.CouponInfo = _mapper.Map<CouponResponse>(order.CouponKeyNavigation);
+					}
+
+					// Map OrderDetails to OrderDetailResponse and include Product information
+					response.OrderDetails = order.OrderDetails.Select(orderDetail =>
                     {
                         var detailResponse = _mapper.Map<OrderDetailResponse>(orderDetail);
                         detailResponse.Product = _mapper.Map<ProductResponse>(orderDetail.ProductKeyNavigation);
@@ -174,15 +181,29 @@ namespace Services.Classes
         {
             var order = await _unitOfWork.OrderRepository
                                             .GetByIdAsync(orderKey, keyColumn: "orderKey",
-                                            includeProperties: "CustomerInfoKeyNavigation,OrderDetails," +
+                                            includeProperties: "CouponKeyNavigation,CustomerInfoKeyNavigation,OrderDetails," +
                                                                 "OrderDetails.ProductKeyNavigation");
             if (order == null) return null;
 
             _mapper.Map(request, order);
             _unitOfWork.OrderRepository.Update(order);
             await _unitOfWork.CommitAsync();
+            var orderResponse = _mapper.Map<OrderResponse>(order);
+			orderResponse.CustomerInfo = _mapper.Map<CustomerInformationResponse>(order.CustomerInfoKeyNavigation);
 
-            return _mapper.Map<OrderResponse>(order);
+			if (order.CouponKey != null)
+			{
+				orderResponse.CouponInfo = _mapper.Map<CouponResponse>(order.CouponKeyNavigation);
+			}
+			// Map OrderDetails to OrderDetailResponse and include Product information
+			orderResponse.OrderDetails = order.OrderDetails.Select(orderDetail =>
+			{
+				var detailResponse = _mapper.Map<OrderDetailResponse>(orderDetail);
+				detailResponse.Product = _mapper.Map<ProductResponse>(orderDetail.ProductKeyNavigation);
+				return detailResponse;
+			}).ToList();
+
+			return orderResponse;
         }
 
         public async Task<bool> DeleteOrder(string orderKey)
@@ -199,7 +220,7 @@ namespace Services.Classes
         public async Task<PaginatedList<OrderResponse>> GetAllOrders(GetListOrderRequest request)
         {
             var orders = await _unitOfWork.OrderRepository
-                                            .GetAllAsync(includeProperties: "CustomerInfoKeyNavigation,OrderDetails," +
+                                            .GetAllAsync(includeProperties: "CouponKeyNavigation,CustomerInfoKeyNavigation,OrderDetails," +
                                                                             "OrderDetails.ProductKeyNavigation");
 
             // Map the list of orders to OrderResponse including related entities
@@ -208,8 +229,13 @@ namespace Services.Classes
                 var orderResponse = _mapper.Map<OrderResponse>(order);
                 orderResponse.CustomerInfo = _mapper.Map<CustomerInformationResponse>(order.CustomerInfoKeyNavigation);
 
-                // Map OrderDetails to OrderDetailResponse and include Product information
-                orderResponse.OrderDetails = order.OrderDetails.Select(orderDetail =>
+                if(order.CouponKey != null)
+                {
+					orderResponse.CouponInfo = _mapper.Map<CouponResponse>(order.CouponKeyNavigation);
+				}
+
+				// Map OrderDetails to OrderDetailResponse and include Product information
+				orderResponse.OrderDetails = order.OrderDetails.Select(orderDetail =>
                 {
                     var detailResponse = _mapper.Map<OrderDetailResponse>(orderDetail);
                     detailResponse.Product = _mapper.Map<ProductResponse>(orderDetail.ProductKeyNavigation);
