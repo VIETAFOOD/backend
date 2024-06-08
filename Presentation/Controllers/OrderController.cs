@@ -22,6 +22,7 @@ namespace Presentation.Controllers
 			_orderService = orderService;
 		}
 
+		[Authorize]
 		[HttpGet]
 		public async Task<IActionResult> GetList([FromQuery] GetListOrderRequest request)
 		{
@@ -36,6 +37,7 @@ namespace Presentation.Controllers
 			}
 		}
 
+		[Authorize]
 		[HttpGet("{key}")]
 		public async Task<IActionResult> GetById(string key)
 		{
@@ -81,6 +83,7 @@ namespace Presentation.Controllers
 		}
 
 		[HttpPut("{key}")]
+		[Authorize]
 		public async Task<IActionResult> Update(string key, [FromBody] UpdateOrderRequest request)
 		{
 			if (!ModelState.IsValid)
