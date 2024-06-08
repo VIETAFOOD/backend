@@ -38,12 +38,12 @@ namespace Presentation.Controllers
 			}
 		}
 
-		[HttpGet("{key}")]
-		public async Task<IActionResult> GetById(string key)
+		[HttpGet("{couponCode}")]
+		public async Task<IActionResult> GetById(string couponCode)
 		{
 			try
 			{
-				var coupon = await _couponService.GetById(key);
+				var coupon = await _couponService.GetById(couponCode);
 				if (coupon == null)
 				{
 					return NotFound(new VietaFoodResponse<CouponResponse>(false, "Coupon not found", null));
