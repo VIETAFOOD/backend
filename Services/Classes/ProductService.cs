@@ -41,10 +41,10 @@ namespace Services.Classes
 			return _mapper.Map<ProductResponse>(product);
 		}
 
-		public async Task<ProductResponse> UpdateProduct(string id, UpdateProductRequest request)
+		public async Task<ProductResponse> UpdateProduct(string key, UpdateProductRequest request)
 		{
-			var product = await _unitOfWork.ProductRepository.GetByIdAsync(id, keyColumn: "productKey");
-			if (product == null) return null;
+            var product = _unitOfWork.ProductRepository.Get(filter: x => x.ProductKey.Equals(key)).FirstOrDefault();
+            if (product == null) return null;
 
 			_mapper.Map(request, product);
 			_unitOfWork.ProductRepository.Update(product);
@@ -53,10 +53,10 @@ namespace Services.Classes
 			return _mapper.Map<ProductResponse>(product);
 		}
 
-		public async Task<bool> DeleteProduct(string id)
+		public async Task<bool> DeleteProduct(string key)
 		{
-			var product = await _unitOfWork.ProductRepository.GetByIdAsync(id, keyColumn: "productKey");
-			if (product == null) return false;
+            var product = _unitOfWork.ProductRepository.Get(filter: x => x.ProductKey.Equals(key)).FirstOrDefault();
+            if (product == null) return false;
 
 			_unitOfWork.ProductRepository.Delete(product);
 			await _unitOfWork.CommitAsync();

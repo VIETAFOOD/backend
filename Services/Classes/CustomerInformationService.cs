@@ -24,9 +24,11 @@ namespace Services.Classes
 			_mapper = mapper;
 		}
 
-		public async Task<CustomerInformationResponse> GetById(string id)
+		public async Task<CustomerInformationResponse> GetById(string key)
 		{
-			var customerInformation = await _unitOfWork.CustomerInformationRepository.GetByIdAsync(id, keyColumn: "customerInfoKey");
+			var customerInformation = _unitOfWork.CustomerInformationRepository
+													.Get(filter: x => x.CustomerInfoKey.Equals(key))
+													.FirstOrDefault();
 			return customerInformation == null ? null : _mapper.Map<CustomerInformationResponse>(customerInformation);
 		}
 
