@@ -35,23 +35,22 @@ namespace Services.Classes
         }
 
         public async Task<OrderResponse> GetById(string orderKey)
-        {
-            var order = await _unitOfWork.OrderRepository
-                                            .GetByIdAsync(orderKey, keyColumn: nameof(Order.OrderKey),
-                                            includeProperties: "CouponKeyNavigation,CustomerInfoKeyNavigation,OrderDetails," +
-                                                                "OrderDetails.ProductKeyNavigation");
+        {                                                  
+            var order = _unitOfWork.OrderRepository
+                                        .Get(filter: x => x.OrderKey.Equals(orderKey),
+                                            includeProperties: "CouponKeyNavigation,CustomerInfoKeyNavigation,OrderDetails");
             if (order == null)
             {
                 return null;
             }
             var response = _mapper.Map<OrderResponse>(order);
-            response.CustomerInfo = _mapper.Map<CustomerInformationResponse>(order.CustomerInfoKeyNavigation);
-            response.CouponInfo = _mapper.Map<CouponResponse>(order.CouponKeyNavigation);
+            response.CustomerInfo = _mapper.Map<CustomerInformationResponse>(order);
+            response.CouponInfo = _mapper.Map<CouponResponse>(order);
             // Map OrderDetails to OrderDetailResponse and include Product information
-            response.OrderDetails = order.OrderDetails.Select(orderDetail =>
+            response.OrderDetails = order.Select(orderDetail =>
             {
                 var detailResponse = _mapper.Map<OrderDetailResponse>(orderDetail);
-                detailResponse.Product = _mapper.Map<ProductResponse>(orderDetail.ProductKeyNavigation);
+                detailResponse.Product = _mapper.Map<ProductResponse>(orderDetail);
                 return detailResponse;
             }).ToList();
             return response;
@@ -180,10 +179,10 @@ namespace Services.Classes
 
         public async Task<OrderResponse> UpdateOrder(string orderKey, UpdateOrderRequest request)
         {
-            var order = await _unitOfWork.OrderRepository
-                                            .GetByIdAsync(orderKey, keyColumn: "orderKey",
-                                            includeProperties: "CouponKeyNavigation,CustomerInfoKeyNavigation,OrderDetails," +
-                                                                "OrderDetails.ProductKeyNavigation");
+            var order = _unitOfWork.OrderRepository
+                                        .Get(filter: x => x.OrderKey.Equals(orderKey),
+                                            includeProperties: "CouponKeyNavigation,CustomerInfoKeyNavigation,OrderDetails")
+                                        .FirstOrDefault();
             if (order == null) return null;
 
             _mapper.Map(request, order);
@@ -209,7 +208,9 @@ namespace Services.Classes
 
         public async Task<bool> DeleteOrder(string orderKey)
         {
-            var order = await _unitOfWork.OrderRepository.GetByIdAsync(orderKey, keyColumn: "orderKey");
+            var order = _unitOfWork.OrderRepository
+                                            .Get(filter: x => x.OrderKey.Equals(orderKey))
+                                            .FirstOrDefault();
             if (order == null) return false;
 
             _unitOfWork.OrderRepository.Delete(order);
