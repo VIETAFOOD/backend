@@ -25,9 +25,12 @@ namespace Services.Classes
 			_mapper = mapper;
 		}
 
-		public async Task<CouponResponse> GetById(string couponKey)
+		public async Task<CouponResponse> GetById(string couponCode)
 		{
-			var coupon = await _unitOfWork.CouponRepository.GetByIdAsync(couponKey, keyColumn: "couponKey");
+			var coupon = _unitOfWork.CouponRepository
+										.Get(filter: x => 
+											x.CouponCode.Equals(couponCode))
+										.FirstOrDefault();
 			return coupon == null ? null : _mapper.Map<CouponResponse>(coupon);
 		}
 
