@@ -56,12 +56,12 @@ namespace Presentation.Controllers
 		[ProducesResponseType(typeof(VietaFoodResponse<ProductResponse>), StatusCodes.Status200OK)]
 		[ProducesResponseType(typeof(VietaFoodResponse<>), StatusCodes.Status404NotFound)]
 		[ProducesResponseType(typeof(VietaFoodResponse<>), StatusCodes.Status500InternalServerError)]
-		[HttpGet("{id}")]
-		public async Task<IActionResult> GetById(string id)
+		[HttpGet("{key}")]
+		public async Task<IActionResult> GetById(string key)
 		{
 			try
 			{
-				var product = await _productService.GetById(id);
+				var product = await _productService.GetById(key);
 				if (product == null)
 				{
 					return NotFound(new VietaFoodResponse<ProductResponse>(false, "Product not found", null));
