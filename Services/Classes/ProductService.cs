@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using BusinessObjects.Dto.Product;
 using BusinessObjects.Entities;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Repositories;
 using Request.Paging;
 using Services.Constant;
@@ -25,10 +26,10 @@ namespace Services.Classes
 			_mapper = mapper;
 		}
 
-		public async Task<ProductResponse> GetById(string id)
+		public async Task<ProductResponse> GetById(string key)
 		{
-			var product = await _unitOfWork.ProductRepository.GetByIdAsync(id, keyColumn: "productKey");
-			return product == null ? null : _mapper.Map<ProductResponse>(product);
+            var product = _unitOfWork.ProductRepository.Get(filter: x => x.ProductKey.Equals(key)).FirstOrDefault();
+            return product == null ? null : _mapper.Map<ProductResponse>(product);
 		}
 
 		public async Task<ProductResponse> CreateProduct(CreateProductRequest request)
