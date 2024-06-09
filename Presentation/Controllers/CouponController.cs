@@ -7,6 +7,7 @@ using Services.Extentions.Paginate;
 using Services.Extentions;
 using Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
+using System.Net;
 
 namespace Presentation.Controllers
 {
@@ -69,7 +70,11 @@ namespace Presentation.Controllers
 			try
 			{
 				var coupon = await _couponService.CreateCoupon(request);
-				return CreatedAtAction(nameof(GetById), new { couponKey = coupon.CouponKey }, new VietaFoodResponse<CouponResponse>(true, "Coupon created successfully", coupon));
+				if(coupon == null)
+				{
+					return BadRequest(coupon);
+				}
+				return Ok(coupon);
 			}
 			catch (Exception ex)
 			{

@@ -8,6 +8,7 @@ using BusinessObjects.Dto.Coupon;
 using BusinessObjects.Entities;
 using Repositories;
 using Services.Constant;
+using Services.Extentions;
 using Services.Extentions.Paginate;
 using Services.Interfaces;
 
@@ -36,10 +37,20 @@ namespace Services.Classes
 
 		public async Task<CouponResponse> CreateCoupon(CreateCouponRequest request)
 		{
-			var coupon = _mapper.Map<Coupon>(request);
+			request.CreatedDate = Utils.GetDateTimeNow();
+			request.Status = PrefixKeyConstant.TRUE;
+            if (request.CreatedDate > request.ExpiredDate
+				|| request.NumOfUses < 0 
+				|| (request.DiscountPercentage > 100 
+					|| request.DiscountPercentage < 0))
+            {
+                return null;
+            }
+
+            var coupon = _mapper.Map<Coupon>(request);
 			coupon.CouponKey = string.Format("{0}{1}", PrefixKeyConstant.COUPON, Guid.NewGuid().ToString().ToUpper());
 			_unitOfWork.CouponRepository.Add(coupon);
-			await _unitOfWork.CommitAsync();
+			_unitOfWork.Commit();
 			return _mapper.Map<CouponResponse>(coupon);
 		}
 
