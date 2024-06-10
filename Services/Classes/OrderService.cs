@@ -35,24 +35,31 @@ namespace Services.Classes
         }
 
         public async Task<OrderResponse> GetById(string orderKey)
-        {                                                  
+        {
             var order = _unitOfWork.OrderRepository
                                         .Get(filter: x => x.OrderKey.Equals(orderKey),
-                                            includeProperties: "CouponKeyNavigation,CustomerInfoKeyNavigation,OrderDetails");
+                                            includeProperties: "CouponKeyNavigation,CustomerInfoKeyNavigation," +
+                                                                "OrderDetails,OrderDetails.ProductKeyNavigation")
+                                        .FirstOrDefault();
             if (order == null)
             {
                 return null;
             }
             var response = _mapper.Map<OrderResponse>(order);
-            response.CustomerInfo = _mapper.Map<CustomerInformationResponse>(order);
-            response.CouponInfo = _mapper.Map<CouponResponse>(order);
+            response.CustomerInfo = _mapper.Map<CustomerInformationResponse>(order.CustomerInfoKeyNavigation);
+            response.CouponInfo = _mapper.Map<CouponResponse>(order.CouponKeyNavigation);
             // Map OrderDetails to OrderDetailResponse and include Product information
-            response.OrderDetails = order.Select(orderDetail =>
+            //response.OrderDetails = _mapper.Map<List<OrderDetailResponse>>(order.OrderDetails);
+
+            //order.OrderDetails.Select(x =>
+            //        _mapper.Map<ProductResponse>(x.ProductKeyNavigation));
+            response.OrderDetails = order.OrderDetails.Select(orderDetail =>
             {
                 var detailResponse = _mapper.Map<OrderDetailResponse>(orderDetail);
-                detailResponse.Product = _mapper.Map<ProductResponse>(orderDetail);
+                detailResponse.Product = _mapper.Map<ProductResponse>(orderDetail.ProductKeyNavigation);
                 return detailResponse;
             }).ToList();
+
             return response;
         }
 
@@ -137,7 +144,7 @@ namespace Services.Classes
                                 getCoupon.Status = PrefixKeyConstant.FALSE;
                             }
 
-                            order.TotalPrice = (decimal)((double)getTotalPriceInOrderDetail - 
+                            order.TotalPrice = (decimal)((double)getTotalPriceInOrderDetail -
                                                             ((double)getTotalPriceInOrderDetail * (double)(getCoupon.DiscountPercentage / 100)));
                         }
                         else
