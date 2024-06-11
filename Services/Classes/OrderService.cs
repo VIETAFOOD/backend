@@ -156,16 +156,18 @@ namespace Services.Classes
                     }
                     _unitOfWork.Commit();
                     var res = _unitOfWork.OrderRepository.Get(filter: x => x.OrderKey == order.OrderKey).FirstOrDefault();
-
+                    var getCouponByCode = _unitOfWork.CouponRepository
+                                                            .Get(filter: x => x.CouponCode.Equals(request.CouponCode))
+                                                            .FirstOrDefault();
                     // Commit transaction if all operations succeed
                     transaction.Complete();
                     response = _mapper.Map<OrderResponse>(res);
                     response.CustomerInfo = _mapper.Map<CustomerInformationResponse>(order.CustomerInfoKeyNavigation);
 
                     //Map Coupon Info
-                    if (order.CouponKey != null)
-                    {
-                        response.CouponInfo = _mapper.Map<CouponResponse>(order.CouponKeyNavigation);
+                    if (getCouponByCode != null)
+                    {   
+                        response.CouponInfo = _mapper.Map<CouponResponse>(getCouponByCode);
                     }
 
                     // Map OrderDetails to OrderDetailResponse and include Product information
