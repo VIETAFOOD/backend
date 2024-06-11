@@ -90,11 +90,9 @@ namespace Services.Classes
                     order.OrderKey = orderKey;
                     order.CreatedAt = Utils.GetDateTimeNow();
                     order.Status = (byte)OrderStatusEnum.Unpaid;
-					var couponKey = _unitOfWork.CouponRepository.Get(filter: p => p.CouponCode.Equals(request.CouponCode)).Select(c => c.CouponKey).FirstOrDefault();
-                    order.CouponKey = couponKey ?? null;
 
-					_unitOfWork.OrderRepository.Add(order);
-					_unitOfWork.Commit();
+                    _unitOfWork.OrderRepository.Add(order);
+                    _unitOfWork.Commit();
 
                     // Map and add Customer Information
                     var cusInfoReq = _mapper.Map<CustomerInformation>(request.CustomerInfo);
