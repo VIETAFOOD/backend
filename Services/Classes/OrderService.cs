@@ -113,7 +113,7 @@ namespace Services.Classes
 
 					// Map and add Order Details
 					var listOrderDetails = _mapper.Map<List<OrderDetail>>(request.Items);
-					decimal getTotalPriceInOrderDetail = 0;
+					decimal getTotalPriceInOrderDetail = (decimal)ShippingEnum.DefaultShippingCharge; // default shipping charge
 					foreach (var orderDetail in listOrderDetails)
 					{
 						orderDetail.OrderDetailKey = string.Format("{0}{1}", PrefixKeyConstant.ORDER_DETAIL,
