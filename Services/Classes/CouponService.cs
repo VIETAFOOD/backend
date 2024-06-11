@@ -30,7 +30,9 @@ namespace Services.Classes
 		{
 			var coupon = _unitOfWork.CouponRepository
 										.Get(filter: x => 
-											x.CouponCode.Equals(couponCode))
+											x.CouponCode.Equals(couponCode)
+											&& x.ExpiredDate > Utils.GetDateTimeNow()
+											&& x.NumOfUses >= 1)
 										.FirstOrDefault();
 			return coupon == null ? null : _mapper.Map<CouponResponse>(coupon);
 		}

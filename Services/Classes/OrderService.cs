@@ -90,11 +90,9 @@ namespace Services.Classes
                     order.OrderKey = orderKey;
                     order.CreatedAt = Utils.GetDateTimeNow();
                     order.Status = (byte)OrderStatusEnum.Unpaid;
-					var couponKey = _unitOfWork.CouponRepository.Get(filter: p => p.CouponCode.Equals(request.CouponCode)).Select(c => c.CouponKey).FirstOrDefault();
-                    order.CouponKey = couponKey ?? null;
 
-					_unitOfWork.OrderRepository.Add(order);
-					_unitOfWork.Commit();
+                    _unitOfWork.OrderRepository.Add(order);
+                    _unitOfWork.Commit();
 
                     // Map and add Customer Information
                     var cusInfoReq = _mapper.Map<CustomerInformation>(request.CustomerInfo);
@@ -134,10 +132,11 @@ namespace Services.Classes
 
                     if (!string.IsNullOrEmpty(request.CouponCode))
                     {
-                        var getCoupon = _unitOfWork.CouponRepository.Get(filter: c => c.CouponCode.Equals(request.CouponCode)).SingleOrDefault();
-                        if (getCoupon != null
-                        && getCoupon.ExpiredDate > Utils.GetDateTimeNow()
-                        && getCoupon.NumOfUses >= 1)
+                        var getCoupon = _unitOfWork.CouponRepository.Get(filter: x =>
+											x.CouponCode.Equals(request.CouponCode)
+											&& x.ExpiredDate > Utils.GetDateTimeNow()
+											&& x.NumOfUses >= 1).FirstOrDefault();
+                        if (getCoupon != null)
                         {
                             getCoupon.NumOfUses -= 1;
 
