@@ -132,10 +132,11 @@ namespace Services.Classes
 
                     if (!string.IsNullOrEmpty(request.CouponCode))
                     {
-                        var getCoupon = _unitOfWork.CouponRepository.Get(filter: c => c.CouponCode.Equals(request.CouponCode)).SingleOrDefault();
-                        if (getCoupon != null
-                        && getCoupon.ExpiredDate > Utils.GetDateTimeNow()
-                        && getCoupon.NumOfUses >= 1)
+                        var getCoupon = _unitOfWork.CouponRepository.Get(filter: x =>
+											x.CouponCode.Equals(request.CouponCode)
+											&& x.ExpiredDate > Utils.GetDateTimeNow()
+											&& x.NumOfUses >= 1).FirstOrDefault();
+                        if (getCoupon != null)
                         {
                             getCoupon.NumOfUses -= 1;
 
