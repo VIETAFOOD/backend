@@ -86,7 +86,7 @@ namespace Presentation.Controllers
 		{
 			if (!ModelState.IsValid)
 			{
-				return BadRequest(new VietaFoodResponse<OrderResponse>(false, "Invalid data", null));
+				return BadRequest(BadRequest(ModelState));
 			}
 
 			try
