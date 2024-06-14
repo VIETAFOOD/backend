@@ -20,5 +20,8 @@ namespace Services.Enums
 
 		[Description("Delivered")]
 		Delivered = 4,
+
+		[Description("Deleted")]
+		Deleted = 5,
 	}
 }
