@@ -37,7 +37,7 @@ namespace Services.Classes
 		public async Task<OrderResponse> GetById(string orderKey)
 		{
 			var order = _unitOfWork.OrderRepository
-										.Get(filter: x => x.OrderKey.Equals(orderKey),
+										.Get(filter: x => x.OrderKey.Equals(orderKey) && x.Status != (byte)OrderStatusEnum.Deleted,
 											includeProperties: "CouponKeyNavigation,CustomerInfoKeyNavigation," +
 																"OrderDetails,OrderDetails.ProductKeyNavigation")
 										.FirstOrDefault();
@@ -189,7 +189,7 @@ namespace Services.Classes
 		public async Task<OrderResponse> UpdateOrder(string orderKey, UpdateOrderRequest request)
 		{
 			var order = _unitOfWork.OrderRepository
-										.Get(filter: x => x.OrderKey.Equals(orderKey),
+										.Get(filter: x => x.OrderKey.Equals(orderKey) && x.Status != (byte)OrderStatusEnum.Deleted,
 											includeProperties: "CouponKeyNavigation,CustomerInfoKeyNavigation,OrderDetails")
 										.FirstOrDefault();
 			if (order == null) return null;
@@ -218,11 +218,12 @@ namespace Services.Classes
 		public async Task<bool> DeleteOrder(string orderKey)
 		{
 			var order = _unitOfWork.OrderRepository
-											.Get(filter: x => x.OrderKey.Equals(orderKey))
+											.Get(filter: x => x.OrderKey.Equals(orderKey) && x.Status != (byte)OrderStatusEnum.Deleted)
 											.FirstOrDefault();
 			if (order == null) return false;
 
-			_unitOfWork.OrderRepository.Delete(order);
+			order.Status = (byte)OrderStatusEnum.Deleted;
+			_unitOfWork.OrderRepository.Update(order);
 			await _unitOfWork.CommitAsync();
 
 			return true;
@@ -230,8 +231,8 @@ namespace Services.Classes
 
 		public async Task<PaginatedList<OrderResponse>> GetAllOrders(GetListOrderRequest request)
 		{
-			var orders = await _unitOfWork.OrderRepository
-											.GetAllAsync(includeProperties: "CouponKeyNavigation,CustomerInfoKeyNavigation,OrderDetails," +
+			var orders =  _unitOfWork.OrderRepository
+											.Get(filter:x => x.Status != (byte)OrderStatusEnum.Deleted, includeProperties: "CouponKeyNavigation,CustomerInfoKeyNavigation,OrderDetails," +
 																			"OrderDetails.ProductKeyNavigation");
 
 			// Map the list of orders to OrderResponse including related entities
