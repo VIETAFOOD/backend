@@ -98,7 +98,7 @@ namespace Presentation.Controllers
 			try
 			{
 				var product = await _productService.CreateProduct(request);
-				return CreatedAtAction(nameof(GetById), new { id = product.ProductKey }, new VietaFoodResponse<ProductResponse>(true, "Product created successfully", product));
+				return  Ok(product);
 			}
 			catch (Exception ex)
 			{
