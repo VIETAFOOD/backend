@@ -1,16 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
 using BusinessObjects.Dto.Coupon;
 using BusinessObjects.Entities;
+using Microsoft.AspNetCore.Http;
 using Repositories;
 using Services.Constant;
 using Services.Extentions;
 using Services.Extentions.Paginate;
 using Services.Interfaces;
+using System.IdentityModel.Tokens.Jwt;
 
 
 namespace Services.Classes
@@ -19,17 +16,19 @@ namespace Services.Classes
 	{
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly IMapper _mapper;
+		private readonly IHttpContextAccessor _contextAccessor;
 
-		public CouponService(IUnitOfWork unitOfWork, IMapper mapper)
+		public CouponService(IUnitOfWork unitOfWork, IMapper mapper, IHttpContextAccessor contextAccessor)
 		{
 			_unitOfWork = unitOfWork;
 			_mapper = mapper;
+			_contextAccessor = contextAccessor;
 		}
 
 		public async Task<CouponResponse> GetById(string couponCode)
 		{
 			var coupon = _unitOfWork.CouponRepository
-										.Get(filter: x => 
+										.Get(filter: x =>
 											x.CouponCode.Equals(couponCode)
 											&& x.ExpiredDate > Utils.GetDateTimeNow()
 											&& x.NumOfUses >= 1)
@@ -39,26 +38,44 @@ namespace Services.Classes
 
 		public async Task<CouponResponse> CreateCoupon(CreateCouponRequest request)
 		{
-			request.CreatedDate = Utils.GetDateTimeNow();
-			request.Status = PrefixKeyConstant.TRUE;
-            if (request.CreatedDate > request.ExpiredDate
-				|| request.NumOfUses < 0 
-				|| (request.DiscountPercentage > 100 
-					|| request.DiscountPercentage < 0))
+			var getKeyAdmin = _contextAccessor.HttpContext.User.FindFirst(JwtRegisteredClaimNames.Jti)?.Value;
+
+			var exsitAdmin = _unitOfWork.AdminRepository
+											.Get(filter: x => x.AdminKey.Equals(getKeyAdmin)
+															&& x.Email.Equals(request.Email))
+											.FirstOrDefault();
+
+			var coupon = _mapper.Map<Coupon>(request);
+            coupon.CreatedDate = Utils.GetDateTimeNow();
+
+            coupon.ExpiredDate = coupon.CreatedDate.AddMonths(request.ExpiredDate);
+            if (coupon.CreatedDate > coupon.ExpiredDate
+					|| coupon.NumOfUses < 0
+					|| (request.DiscountPercentage > 100
+					|| request.DiscountPercentage < 0)
+					|| exsitAdmin == null
+				)
             {
                 return null;
             }
-
-            var coupon = _mapper.Map<Coupon>(request);
-			coupon.CouponKey = string.Format("{0}{1}", PrefixKeyConstant.COUPON, Guid.NewGuid().ToString().ToUpper());
-			_unitOfWork.CouponRepository.Add(coupon);
+            
+            coupon.Status = PrefixKeyConstant.TRUE;
+            coupon.CouponKey = string.Format("{0}{1}", PrefixKeyConstant.COUPON, Guid.NewGuid().ToString().ToUpper());
+			coupon.CreatedBy = exsitAdmin.AdminKey;
+            _unitOfWork.CouponRepository.Add(coupon);
 			_unitOfWork.Commit();
-			return _mapper.Map<CouponResponse>(coupon);
-		}
+
+			var response = _mapper.Map<CouponResponse>(coupon);
+			response.Email = exsitAdmin.Email;
+			return response;
+
+        }
 
 		public async Task<CouponResponse> UpdateCoupon(string couponKey, UpdateCouponRequest request)
 		{
-			var existingCoupon = await _unitOfWork.CouponRepository.GetByIdAsync(couponKey, keyColumn: "couponKey");
+			var existingCoupon = _unitOfWork.CouponRepository
+												.Get(filter: x => x.CouponKey.Equals(couponKey))
+												.FirstOrDefault();
 			if (existingCoupon == null)
 			{
 				return null;

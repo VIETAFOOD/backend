@@ -132,7 +132,7 @@ namespace Presentation.Controllers
 				{
 					return NotFound(new VietaFoodResponse<ProductResponse>(false, "Product not found", null));
 				}
-				return Ok(new VietaFoodResponse<ProductResponse>(true, "Product updated successfully", product));
+				return Ok(product);
 			}
 			catch (Exception ex)
 			{
