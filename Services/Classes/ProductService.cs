@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Repositories;
 using Request.Paging;
 using Services.Constant;
+using Services.Enums;
 using Services.Extentions.Paginate;
 using Services.Interfaces;
 
@@ -58,6 +59,7 @@ namespace Services.Classes
             var product = _unitOfWork.ProductRepository.Get(filter: x => x.ProductKey.Equals(key)).FirstOrDefault();
             if (product == null) return false;
 
+			product.Status = (byte)OrderStatusEnum.Deleted;
 			_unitOfWork.ProductRepository.Delete(product);
 			await _unitOfWork.CommitAsync();
 
