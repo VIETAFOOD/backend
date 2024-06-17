@@ -14,7 +14,7 @@ namespace BusinessObjects.Dto.Coupon
 		public double DiscountPercentage { get; set; }
 		public int NumOfUses { get; set; }
 		public DateTime ExpiredDate { get; set; }
-		public string CreatedBy { get; set; } = null!;
+		public string Email { get; set; } = null!;
 		public DateTime CreatedDate { get; set; }
 	}
 }

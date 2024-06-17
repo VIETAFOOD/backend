@@ -124,6 +124,9 @@ namespace Presentation
 			services.AddScoped<IOrderService, OrderService>();
 			services.AddScoped<IOrderDetailService, OrderDetailService>();
 			services.AddScoped<ICustomerInformationService, CustomerInformationService>();
+
+			//Other
+			services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 		}
 	}
 
