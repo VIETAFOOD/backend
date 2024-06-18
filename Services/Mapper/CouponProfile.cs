@@ -16,7 +16,8 @@ namespace Services.Mapper
         {
 			CreateMap<CreateCouponRequest, Coupon>();
 			CreateMap<UpdateCouponRequest, Coupon>();
-			CreateMap<Coupon, CouponResponse>();
+			CreateMap<Coupon, CouponResponse>()
+				.ForMember(dest => dest.Email, src => src.MapFrom(x => x.CreatedByNavigation.Email));
 		}
     }
 }
