@@ -8,6 +8,7 @@ using Services.Extentions;
 using Services.Extentions.Paginate;
 using Services.Interfaces;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 
 namespace Services.Classes
@@ -48,7 +49,7 @@ namespace Services.Classes
 			var coupon = _mapper.Map<Coupon>(request);
             coupon.CreatedDate = Utils.GetDateTimeNow();
 
-            coupon.ExpiredDate = coupon.CreatedDate.AddMonths(request.ExpiredDate);
+            coupon.ExpiredDate = coupon.CreatedDate.AddDays(request.ExpiredDate);
             if (coupon.CreatedDate > coupon.ExpiredDate
 					|| coupon.NumOfUses < 0
 					|| (request.DiscountPercentage > 100
@@ -76,21 +77,29 @@ namespace Services.Classes
 			var existingCoupon = _unitOfWork.CouponRepository
 												.Get(filter: x => x.CouponKey.Equals(couponKey))
 												.FirstOrDefault();
+			var date = existingCoupon.ExpiredDate;
+
 			if (existingCoupon == null)
 			{
 				return null;
 			}
 
 			_mapper.Map(request, existingCoupon);
-			_unitOfWork.CouponRepository.Update(existingCoupon);
-			await _unitOfWork.CommitAsync();
+            existingCoupon.ExpiredDate = date.AddDays(request.ExpiredDate);
 
-			return _mapper.Map<CouponResponse>(existingCoupon);
+            _unitOfWork.CouponRepository.Update(existingCoupon);
+			_unitOfWork.Commit();
+
+			var response =  _mapper.Map<CouponResponse>(existingCoupon);
+			response.Email = _contextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+			return response;
 		}
 
 		public async Task<bool> DeleteCoupon(string couponKey)
 		{
-			var existingCoupon = await _unitOfWork.CouponRepository.GetByIdAsync(couponKey, keyColumn: "couponKey");
+			var existingCoupon = _unitOfWork.CouponRepository
+												.Get(filter: x => x.CouponKey.Equals(couponKey))
+												.FirstOrDefault();
 			if (existingCoupon == null)
 			{
 				return false;
