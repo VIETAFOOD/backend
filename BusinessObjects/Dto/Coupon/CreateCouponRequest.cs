@@ -8,7 +8,6 @@ namespace BusinessObjects.Dto.Coupon
 {
 	public class CreateCouponRequest
 	{
-
         public string Email { get; set; }
         public string? CouponCode { get; set; }
 		public string Description { get; set; } = null!;
