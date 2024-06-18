@@ -116,18 +116,22 @@ namespace Services.Classes
             IEnumerable<Coupon> coupons;
             if (request.CouponCode == null)
             {
-                coupons = request.DiscountPercentage == null
-                    ? await _unitOfWork.CouponRepository.GetAllAsync()
-                    : _unitOfWork.CouponRepository.Get(filter: x => x.DiscountPercentage == request.DiscountPercentage);
+				coupons = request.DiscountPercentage == null
+					? _unitOfWork.CouponRepository.Get(includeProperties: "CreatedByNavigation")
+                    : _unitOfWork.CouponRepository.Get(filter: x => x.DiscountPercentage == request.DiscountPercentage,
+														includeProperties: "CreatedByNavigation");
             }
             else
             {
                 coupons = _unitOfWork.CouponRepository.Get(filter: x => x.CouponCode.Equals(request.CouponCode)
                                                         && (request.DiscountPercentage == null 
-														|| x.DiscountPercentage == request.DiscountPercentage));
+														|| x.DiscountPercentage == request.DiscountPercentage), 
+															includeProperties: "CreatedByNavigation");
             }
+            coupons.Select(x => x.CreatedByNavigation.Email);
 
             var response = _mapper.Map<IEnumerable<CouponResponse>>(coupons);
+			
 			return await response.ToPaginateAsync(request);
 		}
 	}
