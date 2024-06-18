@@ -31,7 +31,7 @@ namespace Services.Extentions
             List<Claim> claims = new List<Claim>()
             {
                 new Claim(JwtRegisteredClaimNames.Jti, admin.AdminKey.ToString()),
-                new Claim(JwtRegisteredClaimNames.Sub, admin.FullName.ToString())
+                new Claim(JwtRegisteredClaimNames.Sub, admin.Email.ToString())
             };
 
             var expired = DateTime.UtcNow.AddMinutes(30);
