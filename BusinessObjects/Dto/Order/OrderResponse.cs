@@ -17,6 +17,7 @@ namespace BusinessObjects.Dto.Order
 		public CouponResponse? CouponInfo { get; set; } = null;
 		public DateTime CreatedAt { get; set; }
 		public decimal TotalPrice { get; set; }
-		public string Status { get; set; }
+        public string? ImgUrl { get; set; }
+        public string Status { get; set; }
 	}
 }
