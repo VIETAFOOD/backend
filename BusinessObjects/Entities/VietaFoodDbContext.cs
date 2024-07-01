@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.Extensions.Configuration;
 
 namespace BusinessObjects.Entities
 {
@@ -24,30 +23,21 @@ namespace BusinessObjects.Entities
         public virtual DbSet<OrderDetail> OrderDetails { get; set; } = null!;
         public virtual DbSet<Product> Products { get; set; } = null!;
 
-		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-		{
-			if (!optionsBuilder.IsConfigured)
-			{
-				optionsBuilder.UseSqlServer(GetConnectionString());
-			}
-		}
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+                optionsBuilder.UseSqlServer("Server=(local);Database=VietaFoodDb;Uid=sa;Pwd=12345;");
+            }
+        }
 
-		private string GetConnectionString()
-		{
-			IConfiguration config = new ConfigurationBuilder()
-				.SetBasePath(Directory.GetCurrentDirectory())
-				.AddJsonFile("appsettings.json", true, true)
-				.Build();
-			var strConn = config["ConnectionStrings:DefaultConnectionString"];
-			return strConn;
-		}
-
-		protected override void OnModelCreating(ModelBuilder modelBuilder)
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Admin>(entity =>
             {
                 entity.HasKey(e => e.AdminKey)
-                    .HasName("PK__Admin__586B403180F4C4E6");
+                    .HasName("PK__Admin__586B4031F438AA59");
 
                 entity.ToTable("Admin");
 
@@ -72,11 +62,11 @@ namespace BusinessObjects.Entities
             modelBuilder.Entity<Coupon>(entity =>
             {
                 entity.HasKey(e => e.CouponKey)
-                    .HasName("PK__Coupon__592794ACC6677E64");
+                    .HasName("PK__Coupon__592794AC94BB37FA");
 
                 entity.ToTable("Coupon");
 
-                entity.HasIndex(e => e.CouponCode, "UQ__Coupon__1D19F4DAC776D64C")
+                entity.HasIndex(e => e.CouponCode, "UQ__Coupon__1D19F4DA509A2899")
                     .IsUnique();
 
                 entity.Property(e => e.CouponKey)
@@ -116,13 +106,13 @@ namespace BusinessObjects.Entities
                     .WithMany(p => p.Coupons)
                     .HasForeignKey(d => d.CreatedBy)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Coupon__createdB__4E88ABD4");
+                    .HasConstraintName("FK__Coupon__createdB__29572725");
             });
 
             modelBuilder.Entity<CustomerInformation>(entity =>
             {
                 entity.HasKey(e => e.CustomerInfoKey)
-                    .HasName("PK__Customer__B949C15F9BB40812");
+                    .HasName("PK__Customer__B949C15FE012C661");
 
                 entity.ToTable("CustomerInformation");
 
@@ -151,7 +141,7 @@ namespace BusinessObjects.Entities
             modelBuilder.Entity<Order>(entity =>
             {
                 entity.HasKey(e => e.OrderKey)
-                    .HasName("PK__Order__594FCFFBF65CBAA5");
+                    .HasName("PK__Order__594FCFFB5F2B7ED4");
 
                 entity.ToTable("Order");
 
@@ -174,6 +164,10 @@ namespace BusinessObjects.Entities
                     .IsUnicode(false)
                     .HasColumnName("customerInfoKey");
 
+                entity.Property(e => e.ImgUrl)
+                    .HasMaxLength(255)
+                    .HasColumnName("imgUrl");
+
                 entity.Property(e => e.Status).HasColumnName("status");
 
                 entity.Property(e => e.TotalPrice)
@@ -183,18 +177,18 @@ namespace BusinessObjects.Entities
                 entity.HasOne(d => d.CouponKeyNavigation)
                     .WithMany(p => p.Orders)
                     .HasForeignKey(d => d.CouponKey)
-                    .HasConstraintName("FK__Order__couponKey__5441852A");
+                    .HasConstraintName("FK__Order__couponKey__2F10007B");
 
                 entity.HasOne(d => d.CustomerInfoKeyNavigation)
                     .WithMany(p => p.Orders)
                     .HasForeignKey(d => d.CustomerInfoKey)
-                    .HasConstraintName("FK__Order__customerI__534D60F1");
+                    .HasConstraintName("FK__Order__customerI__2E1BDC42");
             });
 
             modelBuilder.Entity<OrderDetail>(entity =>
             {
                 entity.HasKey(e => e.OrderDetailKey)
-                    .HasName("PK__OrderDet__34730B90DC1B87F3");
+                    .HasName("PK__OrderDet__34730B90719965DF");
 
                 entity.ToTable("OrderDetail");
 
@@ -220,18 +214,18 @@ namespace BusinessObjects.Entities
                 entity.HasOne(d => d.OrderKeyNavigation)
                     .WithMany(p => p.OrderDetails)
                     .HasForeignKey(d => d.OrderKey)
-                    .HasConstraintName("FK__OrderDeta__order__5812160E");
+                    .HasConstraintName("FK__OrderDeta__order__32E0915F");
 
                 entity.HasOne(d => d.ProductKeyNavigation)
                     .WithMany(p => p.OrderDetails)
                     .HasForeignKey(d => d.ProductKey)
-                    .HasConstraintName("FK__OrderDeta__produ__571DF1D5");
+                    .HasConstraintName("FK__OrderDeta__produ__31EC6D26");
             });
 
             modelBuilder.Entity<Product>(entity =>
             {
                 entity.HasKey(e => e.ProductKey)
-                    .HasName("PK__Product__1E79644AF21B6B72");
+                    .HasName("PK__Product__1E79644A47BB427A");
 
                 entity.ToTable("Product");
 

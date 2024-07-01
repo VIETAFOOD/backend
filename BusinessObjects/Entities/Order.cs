@@ -16,6 +16,7 @@ namespace BusinessObjects.Entities
         public DateTime CreatedAt { get; set; }
         public decimal TotalPrice { get; set; }
         public byte Status { get; set; }
+        public string? ImgUrl { get; set; }
 
         public virtual Coupon? CouponKeyNavigation { get; set; }
         public virtual CustomerInformation? CustomerInfoKeyNavigation { get; set; }
