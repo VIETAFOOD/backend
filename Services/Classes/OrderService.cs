@@ -113,8 +113,15 @@ namespace Services.Classes
 
 					// Map and add Order Details
 					var listOrderDetails = _mapper.Map<List<OrderDetail>>(request.Items);
-					decimal getTotalPriceInOrderDetail = (decimal)ShippingEnum.DefaultShippingCharge; // default shipping charge
-					foreach (var orderDetail in listOrderDetails)
+					decimal getTotalPriceInOrderDetail = 0;
+
+                    //Check city HCM for ship fee
+                    if(!cusInfoReq.Address.Contains(PrefixKeyConstant.TPHCM))
+					{
+                        getTotalPriceInOrderDetail = (decimal)ShippingEnum.DefaultShippingCharge;
+                    }
+
+                    foreach (var orderDetail in listOrderDetails)
 					{
 						orderDetail.OrderDetailKey = string.Format("{0}{1}", PrefixKeyConstant.ORDER_DETAIL,
 																			Guid.NewGuid().ToString().ToUpper());
