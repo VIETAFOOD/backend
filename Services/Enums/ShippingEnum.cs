@@ -11,5 +11,8 @@ namespace Services.Enums
 	{
 		[Description("DefaultShippingCharge")]
 		DefaultShippingCharge = 30000,
-	}
+
+        [Description("FreeShip")]
+        FreeShip = 0
+    }
 }

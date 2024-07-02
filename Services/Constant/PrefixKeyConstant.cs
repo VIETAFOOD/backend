@@ -19,5 +19,7 @@ namespace Services.Constant
         public static readonly byte TRUE = 1;
         public static readonly byte FALSE = 0;
         #endregion
+
+		public static readonly string TPHCM = "Thành phố Hồ Chí Minh";
     }
 }
