@@ -19,7 +19,8 @@ namespace Services.Mapper
 		public OrderProfile()
 		{
 			CreateMap<CreateOrderRequest, Order>();
-			CreateMap<UpdateOrderRequest, Order>();
+			CreateMap<UpdateOrderRequest, Order>()
+				.ForMember(dest => dest.ImgUrl, opt => opt.Condition(src => src.ImgUrl != null));
 			CreateMap<Order, OrderResponse>()	
 			.ForMember(dest => dest.CustomerInfo, opt => opt.MapFrom(src => src.CustomerInfoKeyNavigation))
 			.ForMember(dest => dest.OrderDetails, opt => opt.MapFrom(src => src.OrderDetails))
