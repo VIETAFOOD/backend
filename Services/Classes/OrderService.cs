@@ -137,7 +137,7 @@ namespace Services.Classes
 
 						if (orderDetail.ProductKeyNavigation.Quantity == 0)
 						{
-							orderDetail.ProductKeyNavigation.Status = PrefixKeyConstant.FALSE;
+							orderDetail.ProductKeyNavigation.Status = (int)ProductStatusEnum.OutOfStock;
 						};
 
 						_unitOfWork.OrderDetailRepository.Add(orderDetail);

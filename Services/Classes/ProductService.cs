@@ -48,6 +48,7 @@ namespace Services.Classes
             if (product == null) return null;
 
 			_mapper.Map(request, product);
+			product.Status = (byte)ProductStatusEnum.InStock;
 			_unitOfWork.ProductRepository.Update(product);
 			await _unitOfWork.CommitAsync();
 
@@ -59,7 +60,7 @@ namespace Services.Classes
             var product = _unitOfWork.ProductRepository.Get(filter: x => x.ProductKey.Equals(key)).FirstOrDefault();
             if (product == null) return false;
 
-			product.Status = (byte)OrderStatusEnum.Deleted;
+			product.Status = (byte)ProductStatusEnum.Deleted;
 			_unitOfWork.ProductRepository.Delete(product);
 			await _unitOfWork.CommitAsync();
 
