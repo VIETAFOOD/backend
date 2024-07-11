@@ -48,8 +48,10 @@ namespace Services.Classes
             if (product == null) return null;
 
 			_mapper.Map(request, product);
-			product.Status = (byte)ProductStatusEnum.InStock;
-			_unitOfWork.ProductRepository.Update(product);
+
+            product.Status = (byte)(product.Quantity <= 0 ? ProductStatusEnum.OutOfStock : ProductStatusEnum.InStock);
+
+            _unitOfWork.ProductRepository.Update(product);
 			await _unitOfWork.CommitAsync();
 
 			return _mapper.Map<ProductResponse>(product);
